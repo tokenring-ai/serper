@@ -1,0 +1,22 @@
+{
+  "name": "@token-ring/serper",
+  "version": "0.1.0",
+  "description": "Serper.dev integration for Token Ring (Google Search and News)",
+  "dependencies": {
+    "@token-ring/ai-client": "0.1.0",
+    "@token-ring/chat": "0.1.0",
+    "@token-ring/registry": "0.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*.ts"
+  },
+  "types": "./index.ts",
+  "license": "MIT",
+  "type": "module"
+}

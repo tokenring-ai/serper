@@ -1,0 +1,94 @@
+{
+ "searchParameters": {
+  "q": "apple inc",
+  "gl": "us",
+  "type": "news",
+  "num": 10,
+  "page": 1,
+  "location": "United States",
+  "engine": "google"
+ },
+ "news": [
+  {
+   "title": "Apple Plots Expansion Into AI Robots, Home Security and Smart Displays",
+   "link": "https://finance.yahoo.com/news/apple-plots-expansion-ai-robots-182112041.html",
+   "snippet": "(Bloomberg) -- Apple Inc. is plotting its artificial intelligence comeback with an ambitious slate of new devices, including robots,...",
+   "date": "6 hours ago",
+   "source": "Yahoo Finance",
+   "position": 1
+  },
+  {
+   "title": "Apple Q3: Clearer Signs Of Long-Term Weakness Emerge (NASDAQ:AAPL)",
+   "link": "https://seekingalpha.com/article/4813021-apple-q3-clearer-signs-of-long-term-weakness-emerge",
+   "snippet": "Apple's Q3 showed revenue growth, mainly from iPhone sales, but this was off a weak prior-year comparison, and margins are declining.",
+   "date": "11 hours ago",
+   "source": "Seeking Alpha",
+   "position": 2
+  },
+  {
+   "title": "Apple expands partnership with Coherent Corp. for face ID tech",
+   "link": "https://www.bizjournals.com/pittsburgh/news/2025/08/12/apple-coherent-partnership-manufacturing.html",
+   "snippet": "Coherent Corp. partners with Apple to supply Face ID lasers for iPhones and iPads, supporting Apple's $600B U.S. investment plan.",
+   "date": "1 day ago",
+   "source": "The Business Journals",
+   "position": 3
+  },
+  {
+   "title": "PRIMECAP Management Co Reduces Stake in Apple Inc",
+   "link": "https://www.tipranks.com/news/company-announcements/primecap-management-co-reduces-stake-in-apple-inc-4",
+   "snippet": "PRIMECAP Management Co, managed by Theofanis Kolokotrones, recently executed a significant transaction involving Apple Inc (($AAPL)).",
+   "date": "16 hours ago",
+   "source": "TipRanks",
+   "position": 4
+  },
+  {
+   "title": "Surprising Google Chrome bid upends Apple AI rumors",
+   "link": "https://www.thestreet.com/technology/surprising-google-chrome-bid-upends-apple-ai-rumors",
+   "snippet": "The latest twist in Google's antitrust drama throws a monkey wrench into Apple reports.",
+   "date": "34 minutes ago",
+   "source": "TheStreet",
+   "position": 5
+  },
+  {
+   "title": "This auction is selling a treasure trove of vintage Apple tech",
+   "link": "https://www.fastcompany.com/91384825/apple-auction-treasure-trove-vintage-tech",
+   "snippet": "The Apple auction wraps August 21—but the available pieces, like a fully functional Apple-1 computer or prototype iPod, are timeless.",
+   "date": "14 hours ago",
+   "source": "Fast Company",
+   "position": 6
+  },
+  {
+   "title": "Wedbush Reaffirms ‘Outperform’ Rating on Apple Inc. (AAPL) with $270 PT",
+   "link": "https://finance.yahoo.com/news/wedbush-reaffirms-outperform-rating-apple-041343402.html",
+   "snippet": "Apple Inc. (NASDAQ:AAPL) is included in our list of the 14 Best Warren Buffett Stocks to Invest in. On August 7, 2025, Apple Inc.",
+   "date": "20 hours ago",
+   "source": "Yahoo Finance",
+   "position": 7
+  },
+  {
+   "title": "APPLE CLASS ACTION: Apple Inc. (AAPL) Investors Are Reminded of The Imminent August 19 Class Action Deadline - Contact BFA Law if You Lost Money",
+   "link": "https://www.wkrn.com/business/press-releases/accesswire/1059151/apple-class-action-apple-inc-aapl-investors-are-reminded-of-the-imminent-august-19-class-action-deadline-contact-bfa-law-if-you-lost-money",
+   "snippet": "NEW YORK CITY, NY / ACCESS Newswire / August 12, 2025 / Leading securities law firm Bleichmar Fonti & Auld LLP announces that a lawsuit has...",
+   "date": "1 day ago",
+   "source": "WKRN News 2",
+   "position": 8
+  },
+  {
+   "title": "Apple Devices Propel RI Availability to Over 5B Worldwide - ReelTime’s Reel Intelligence Leads in Potential Reach, Capability, and Sustainability",
+   "link": "https://finance.yahoo.com/news/apple-devices-propel-ri-availability-132000132.html",
+   "snippet": "ReelTime's Reel Intelligence \"RI\" Adds Apple's Billion-Plus Devices to ReelTime's Potential Reach, Joining 2.8 Billion Android Devices in...",
+   "date": "11 hours ago",
+   "source": "Yahoo Finance",
+   "position": 9
+  },
+  {
+   "title": "Apple Inc (AAPL) Increases its Total Investment to $600 billion to Expand its Manufacturing in the United States",
+   "link": "https://finance.yahoo.com/news/apple-inc-aapl-increases-total-140828726.html",
+   "snippet": "Apple Inc. (NASDAQ:AAPL) is one of the Good Stocks to Invest in Now. On August 8, Apple Inc. (NASDAQ:AAPL) announced a new major $100...",
+   "date": "2 days ago",
+   "source": "Yahoo Finance",
+   "position": 10
+  }
+ ],
+ "credits": 1
+}
