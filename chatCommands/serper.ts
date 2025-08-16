@@ -1,34 +1,35 @@
+import {HumanInterfaceService} from "@token-ring/chat";
 import ChatService from "@token-ring/chat/ChatService";
-import type { Registry } from "@token-ring/registry";
+import {FileSystemService} from "@token-ring/filesystem";
+import type {Registry} from "@token-ring/registry";
 import SerperService from "../SerperService.ts";
-import { HumanInterfaceService } from "@token-ring/chat";
-import { FileSystemService } from "@token-ring/filesystem";
 
 export const description = "/serper [serp|news] - Quick Serper.dev searches";
 
 export function help(): Array<string> {
-    return [
-        "/serper [action] <query> [options] - Quick Serper.dev searches",
-        "  Actions:",
-        "    serp <query>  - Perform Google search",
-        "    news <query>  - Perform Google news search",
-        "",
-        "  Options:",
-        "    --gl <code>        - Country code (e.g., us, uk, de)",
-        "    --hl <code>        - Language code (e.g., en, es, fr)",
-        "    --location <name>  - Location name",
-        "    --num <n>          - Number of results (default varies)",
-        "    --page <n>         - Page number for pagination",
-        "    --save <path>      - Save raw JSON response to file",
-        "    --autocorrect      - Enable autocorrect (serp only)",
-        "",
-        "  Examples:",
-        "    /serper serp typescript best practices",
-        "    /serper news artificial intelligence --num 10",
-        "    /serper serp react hooks --gl us --hl en",
-        "    /serper serp node.js --save search-results.json",
-    ];
+  return [
+    "/serper [action] <query> [options] - Quick Serper.dev searches",
+    "  Actions:",
+    "    serp <query>  - Perform Google search",
+    "    news <query>  - Perform Google news search",
+    "",
+    "  Options:",
+    "    --gl <code>        - Country code (e.g., us, uk, de)",
+    "    --hl <code>        - Language code (e.g., en, es, fr)",
+    "    --location <name>  - Location name",
+    "    --num <n>          - Number of results (default varies)",
+    "    --page <n>         - Page number for pagination",
+    "    --save <path>      - Save raw JSON response to file",
+    "    --autocorrect      - Enable autocorrect (serp only)",
+    "",
+    "  Examples:",
+    "    /serper serp typescript best practices",
+    "    /serper news artificial intelligence --num 10",
+    "    /serper serp react hooks --gl us --hl en",
+    "    /serper serp node.js --save search-results.json",
+  ];
 }
+
 function parseArgs(args: string[]): { flags: Record<string, string | number | boolean>; rest: string[] } {
   const flags: Record<string, string | number | boolean> = {};
   const rest: string[] = [];
@@ -49,7 +50,7 @@ function parseArgs(args: string[]): { flags: Record<string, string | number | bo
       rest.push(a);
     }
   }
-  return { flags, rest };
+  return {flags, rest};
 }
 
 export async function execute(remainder: string, registry: Registry): Promise<void> {
@@ -63,7 +64,7 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
     return;
   }
 
-  const { flags, rest: queryParts } = parseArgs(rest);
+  const {flags, rest: queryParts} = parseArgs(rest);
   const query = queryParts.join(" ");
 
   try {

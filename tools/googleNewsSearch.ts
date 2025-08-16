@@ -1,10 +1,18 @@
 import ChatService from "@token-ring/chat/ChatService";
-import { z } from "zod";
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import SerperService from "../SerperService.ts";
 
 export async function execute(
-  { query, gl, hl, location, num, page, extraParams = {} }: { query?: string; gl?: string; hl?: string; location?: string; num?: number; page?: number; extraParams?: Record<string, string | number | boolean> },
+  {query, gl, hl, location, num, page, extraParams = {}}: {
+    query?: string;
+    gl?: string;
+    hl?: string;
+    location?: string;
+    num?: number;
+    page?: number;
+    extraParams?: Record<string, string | number | boolean>
+  },
   registry: Registry,
 ): Promise<{ results?: any } | { error: string }> {
   const toolName = "googleNewsSearch";
@@ -14,17 +22,17 @@ export async function execute(
   if (!query) {
     const msg = "query is required";
     chat.errorLine(`[${toolName}] ${msg}`);
-    return { error: msg };
+    return {error: msg};
   }
 
   try {
     chat.infoLine(`[${toolName}] Searching news: ${query}`);
-    const results = await serper.googleNews(query, { gl, hl, location, num, page, extraParams });
-    return { results };
+    const results = await serper.googleNews(query, {gl, hl, location, num, page, extraParams});
+    return {results};
   } catch (e: any) {
     const message = e?.message || String(e);
     chat.errorLine(`[${toolName}] Error: ${message}`);
-    return { error: message };
+    return {error: message};
   }
 }
 

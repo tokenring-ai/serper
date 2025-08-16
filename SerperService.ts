@@ -1,4 +1,4 @@
-import { Service, type Registry } from "@token-ring/registry";
+import {type Registry, Service} from "@token-ring/registry";
 
 export type SerperDefaults = {
   gl?: string;
@@ -44,7 +44,20 @@ export default class SerperService extends Service {
     this.registry = registry;
   }
 
-  async stop(_registry: Registry): Promise<void> {}
+  async stop(_registry: Registry): Promise<void> {
+  }
+
+  async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<any> {
+    const body = this.buildPayload(query, {...opts, type: "search", ...(opts.extraParams || {})});
+    const res = await this.doPostWithRetry("https://google.serper.dev/search", body);
+    return await this.parseJsonOrThrow(res, "Serper search");
+  }
+
+  async googleNews(query: string, opts: SerperNewsOptions = {}): Promise<any> {
+    const body = this.buildPayload(query, {...opts, type: "news", ...(opts.extraParams || {})});
+    const res = await this.doPostWithRetry("https://google.serper.dev/news", body);
+    return await this.parseJsonOrThrow(res, "Serper news");
+  }
 
   private async doPostWithRetry(url: string, body: any): Promise<Response> {
     const maxRetries = 3;
@@ -69,14 +82,14 @@ export default class SerperService extends Service {
       return res;
     }
     // fallback (shouldn't reach)
-    return await this.fetchImpl(url, { method: "POST", body: JSON.stringify(body) });
+    return await this.fetchImpl(url, {method: "POST", body: JSON.stringify(body)});
   }
 
   private buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown> {
-    if (!query) throw Object.assign(new Error("query is required"), { status: 400 });
-    const base: Record<string, unknown> = { q: query };
-    const d: Record<string, unknown> = { ...(this.config.defaults ?? {}) };
-    const merged: Record<string, unknown> = { ...base, ...d, ...(opts || {}) };
+    if (!query) throw Object.assign(new Error("query is required"), {status: 400});
+    const base: Record<string, unknown> = {q: query};
+    const d: Record<string, unknown> = {...(this.config.defaults ?? {})};
+    const merged: Record<string, unknown> = {...base, ...d, ...(opts || {})};
 
     // Remove undefined/null values
     for (const k of Object.keys(merged)) {
@@ -114,17 +127,5 @@ export default class SerperService extends Service {
       }
       throw e;
     }
-  }
-
-  async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<any> {
-    const body = this.buildPayload(query, { ...opts, type: "search", ...(opts.extraParams || {}) });
-    const res = await this.doPostWithRetry("https://google.serper.dev/search", body);
-    return await this.parseJsonOrThrow(res, "Serper search");
-  }
-
-  async googleNews(query: string, opts: SerperNewsOptions = {}): Promise<any> {
-    const body = this.buildPayload(query, { ...opts, type: "news", ...(opts.extraParams || {}) });
-    const res = await this.doPostWithRetry("https://google.serper.dev/news", body);
-    return await this.parseJsonOrThrow(res, "Serper news");
   }
 }

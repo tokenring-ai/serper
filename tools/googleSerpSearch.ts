@@ -1,10 +1,19 @@
 import ChatService from "@token-ring/chat/ChatService";
-import { z } from "zod";
-import type { Registry } from "@token-ring/registry";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import SerperService from "../SerperService.ts";
 
 export async function execute(
-  { query, gl, hl, location, num, page, autocorrect, extraParams = {} }: { query?: string; gl?: string; hl?: string; location?: string; num?: number; page?: number; autocorrect?: boolean; extraParams?: Record<string, string | number | boolean> },
+  {query, gl, hl, location, num, page, autocorrect, extraParams = {}}: {
+    query?: string;
+    gl?: string;
+    hl?: string;
+    location?: string;
+    num?: number;
+    page?: number;
+    autocorrect?: boolean;
+    extraParams?: Record<string, string | number | boolean>
+  },
   registry: Registry,
 ): Promise<{ results?: any; error?: string }> {
   const chat = registry.requireFirstServiceByType(ChatService);
@@ -13,17 +22,17 @@ export async function execute(
   if (!query) {
     const msg = "query is required";
     chat.errorLine(`[googleSerpSearch] ${msg}`);
-    return { error: msg };
+    return {error: msg};
   }
 
   try {
     chat.infoLine(`[googleSerpSearch] Searching: ${query}`);
-    const results = await serper.googleSearch(query, { gl, hl, location, num, page, autocorrect, extraParams });
-    return { results };
+    const results = await serper.googleSearch(query, {gl, hl, location, num, page, autocorrect, extraParams});
+    return {results};
   } catch (e: any) {
     const message = e?.message || String(e);
     chat.errorLine(`[googleSerpSearch] Error: ${message}`);
-    return { error: message };
+    return {error: message};
   }
 }
 
