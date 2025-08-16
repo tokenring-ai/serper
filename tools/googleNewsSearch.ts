@@ -1,38 +1,48 @@
 import ChatService from "@token-ring/chat/ChatService";
-import type {Registry} from "@token-ring/registry";
-import {z} from "zod";
+import type { Registry } from "@token-ring/registry";
+import { z } from "zod";
 import SerperService from "../SerperService.ts";
 
+// Exported tool name following "packageName/toolName" convention
+export const name = "serper/googleNewsSearch";
+
 export async function execute(
-  {query, gl, hl, location, num, page, extraParams = {}}: {
+  {
+    query,
+    gl,
+    hl,
+    location,
+    num,
+    page,
+    extraParams = {},
+  }: {
     query?: string;
     gl?: string;
     hl?: string;
     location?: string;
     num?: number;
     page?: number;
-    extraParams?: Record<string, string | number | boolean>
+    extraParams?: Record<string, string | number | boolean>;
   },
   registry: Registry,
-): Promise<{ results?: any } | { error: string }> {
-  const toolName = "googleNewsSearch";
+): Promise<{ results?: any }> {
   const chat = registry.requireFirstServiceByType(ChatService);
   const serper = registry.requireFirstServiceByType(SerperService);
 
   if (!query) {
     const msg = "query is required";
-    chat.errorLine(`[${toolName}] ${msg}`);
-    return {error: msg};
+    // Throw error instead of returning; include tool name in message
+    throw new Error(`[${name}] ${msg}`);
   }
 
   try {
-    chat.infoLine(`[${toolName}] Searching news: ${query}`);
-    const results = await serper.googleNews(query, {gl, hl, location, num, page, extraParams});
-    return {results};
+    chat.infoLine(`[${name}] Searching news: ${query}`);
+    const results = await serper.googleNews(query, { gl, hl, location, num, page, extraParams });
+    return { results };
   } catch (e: any) {
     const message = e?.message || String(e);
-    chat.errorLine(`[${toolName}] Error: ${message}`);
-    return {error: message};
+    // Throw error with tool name prefix
+    throw new Error(`[${name}] Error: ${message}`);
   }
 }
 
@@ -45,5 +55,5 @@ export const parameters = z.object({
   location: z.string().optional().describe("Free-form location string"),
   num: z.number().int().positive().optional().describe("Number of results"),
   page: z.number().int().positive().optional().describe("Page number (1-based)"),
-  extraParams: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe("Additional request params")
+  extraParams: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe("Additional request params"),
 });
