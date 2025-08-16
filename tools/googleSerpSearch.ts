@@ -11,8 +11,8 @@ export async function execute(
   const serper = registry.requireFirstServiceByType(SerperService);
 
   if (!query) {
-    const msg = "[googleSerpSearch] query is required";
-    chat.errorLine(msg);
+    const msg = "query is required";
+    chat.errorLine(`[googleSerpSearch] ${msg}`);
     return { error: msg };
   }
 

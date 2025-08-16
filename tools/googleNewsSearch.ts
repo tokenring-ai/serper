@@ -6,23 +6,24 @@ import SerperService from "../SerperService.ts";
 export async function execute(
   { query, gl, hl, location, num, page, extraParams = {} }: { query?: string; gl?: string; hl?: string; location?: string; num?: number; page?: number; extraParams?: Record<string, string | number | boolean> },
   registry: Registry,
-): Promise<{ results?: any; error?: string }> {
+): Promise<{ results?: any } | { error: string }> {
+  const toolName = "googleNewsSearch";
   const chat = registry.requireFirstServiceByType(ChatService);
   const serper = registry.requireFirstServiceByType(SerperService);
 
   if (!query) {
-    const msg = "[googleNewsSearch] query is required";
-    chat.errorLine(msg);
+    const msg = "query is required";
+    chat.errorLine(`[${toolName}] ${msg}`);
     return { error: msg };
   }
 
   try {
-    chat.infoLine(`[googleNewsSearch] Searching news: ${query}`);
+    chat.infoLine(`[${toolName}] Searching news: ${query}`);
     const results = await serper.googleNews(query, { gl, hl, location, num, page, extraParams });
     return { results };
   } catch (e: any) {
     const message = e?.message || String(e);
-    chat.errorLine(`[googleNewsSearch] Error: ${message}`);
+    chat.errorLine(`[${toolName}] Error: ${message}`);
     return { error: message };
   }
 }
