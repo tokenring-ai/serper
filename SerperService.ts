@@ -1,4 +1,4 @@
-import {type Registry, Service} from "@token-ring/registry";
+import {Service} from "@token-ring/registry";
 
 export type SerperDefaults = {
   gl?: string;
@@ -30,21 +30,13 @@ export default class SerperService extends Service {
   description = "Service for querying Serper.dev Google Search and News endpoints";
 
   private config: SerperConfig;
-  private registry!: Registry;
-  private fetchImpl: typeof fetch;
+  private readonly fetchImpl: typeof fetch;
 
   constructor(config: SerperConfig) {
     super();
     if (!config?.apiKey) throw new Error("SerperService requires apiKey");
     this.config = config;
     this.fetchImpl = config.fetchImpl ?? fetch;
-  }
-
-  async start(registry: Registry): Promise<void> {
-    this.registry = registry;
-  }
-
-  async stop(_registry: Registry): Promise<void> {
   }
 
   async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<any> {

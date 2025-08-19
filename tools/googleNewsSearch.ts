@@ -1,6 +1,6 @@
 import ChatService from "@token-ring/chat/ChatService";
-import type { Registry } from "@token-ring/registry";
-import { z } from "zod";
+import type {Registry} from "@token-ring/registry";
+import {z} from "zod";
 import SerperService from "../SerperService.ts";
 
 // Exported tool name following "packageName/toolName" convention
@@ -37,8 +37,8 @@ export async function execute(
 
   try {
     chat.infoLine(`[${name}] Searching news: ${query}`);
-    const results = await serper.googleNews(query, { gl, hl, location, num, page, extraParams });
-    return { results };
+    const results = await serper.googleNews(query, {gl, hl, location, num, page, extraParams});
+    return {results};
   } catch (e: any) {
     const message = e?.message || String(e);
     // Throw error with tool name prefix
@@ -48,12 +48,12 @@ export async function execute(
 
 export const description = "Google News structured search via Serper.dev. Returns structured JSON.";
 
-export const parameters = z.object({
+export const inputSchema = z.object({
   query: z.string().min(1).describe("News search query"),
   gl: z.string().optional().describe("Country code, e.g. 'us'"),
   hl: z.string().optional().describe("Language code, e.g. 'en'"),
   location: z.string().optional().describe("Free-form location string"),
   num: z.number().int().positive().optional().describe("Number of results"),
   page: z.number().int().positive().optional().describe("Page number (1-based)"),
-  extraParams: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe("Additional request params"),
+  extraParams: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional().describe("Additional request params"),
 });

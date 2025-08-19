@@ -6,6 +6,7 @@ import SerperService from "../SerperService.ts";
 
 export const description = "/serper [serp|news] - Quick Serper.dev searches";
 
+// noinspection JSUnusedGlobalSymbols
 export function help(): Array<string> {
   return [
     "/serper [action] <query> [options] - Quick Serper.dev searches",
@@ -67,72 +68,68 @@ export async function execute(remainder: string, registry: Registry): Promise<vo
   const {flags, rest: queryParts} = parseArgs(rest);
   const query = queryParts.join(" ");
 
-  try {
-    if (sub === "serp") {
-      if (!query) {
-        chat.errorLine("Usage: /serper serp <query> [flags]");
-        return;
-      }
-      const res = await serper.googleSearch(query, {
-        gl: flags.gl as string | undefined,
-        hl: flags.hl as string | undefined,
-        location: flags.location as string | undefined,
-        num: flags.num as number | undefined,
-        page: flags.page as number | undefined,
-        autocorrect: !!flags.autocorrect,
-      });
+  if (sub === "serp") {
+    if (!query) {
+      chat.errorLine("Usage: /serper serp <query> [flags]");
+      return;
+    }
+    const res = await serper.googleSearch(query, {
+      gl: flags.gl as string | undefined,
+      hl: flags.hl as string | undefined,
+      location: flags.location as string | undefined,
+      num: flags.num as number | undefined,
+      page: flags.page as number | undefined,
+      autocorrect: !!flags.autocorrect,
+    });
 
-      const organic = Array.isArray(res?.organic) ? res.organic.slice(0, 5) : [];
-      if (organic.length) {
-        chat.systemLine("Top results:");
-        for (const item of organic) {
-          chat.systemLine(`- ${item.title ?? "(no title)"} ${item.link ?? ""}`);
-        }
-      } else {
-        chat.systemLine("No organic results.");
-      }
-      if (res?.knowledgeGraph) chat.systemLine("knowledgeGraph present");
-      if (res?.peopleAlsoAsk) chat.systemLine("peopleAlsoAsk present");
-
-      if (flags.save) {
-        const fsService = registry.requireFirstServiceByType(FileSystemService);
-        const path = String(flags.save);
-        await fsService.writeFile(path, JSON.stringify(res, null, 2));
-        chat.systemLine(`Saved raw JSON to ${path}`);
-      }
-    } else if (sub === "news") {
-      if (!query) {
-        chat.errorLine("Usage: /serper news <query> [flags]");
-        return;
-      }
-      const res = await serper.googleNews(query, {
-        gl: flags.gl as string | undefined,
-        hl: flags.hl as string | undefined,
-        location: flags.location as string | undefined,
-        num: flags.num as number | undefined,
-        page: flags.page as number | undefined,
-      });
-
-      const news = Array.isArray(res?.news) ? res.news.slice(0, 5) : [];
-      if (news.length) {
-        chat.systemLine("Top news:");
-        for (const item of news) {
-          chat.systemLine(`- ${item.title ?? "(no title)"} [${item.source ?? ""}] ${item.link ?? ""}`);
-        }
-      } else {
-        chat.systemLine("No news items.");
-      }
-
-      if (flags.save) {
-        const fsService = registry.requireFirstServiceByType(FileSystemService);
-        const path = String(flags.save);
-        await fsService.writeFile(path, JSON.stringify(res, null, 2));
-        chat.systemLine(`Saved raw JSON to ${path}`);
+    const organic = Array.isArray(res?.organic) ? res.organic.slice(0, 5) : [];
+    if (organic.length) {
+      chat.systemLine("Top results:");
+      for (const item of organic) {
+        chat.systemLine(`- ${item.title ?? "(no title)"} ${item.link ?? ""}`);
       }
     } else {
-      chat.systemLine("Unknown subcommand. Use: serp, news");
+      chat.systemLine("No organic results.");
     }
-  } catch (e: any) {
-    chat.errorLine(`Serper command error: ${e?.message || String(e)}`);
+    if (res?.knowledgeGraph) chat.systemLine("knowledgeGraph present");
+    if (res?.peopleAlsoAsk) chat.systemLine("peopleAlsoAsk present");
+
+    if (flags.save) {
+      const fsService = registry.requireFirstServiceByType(FileSystemService);
+      const path = String(flags.save);
+      await fsService.writeFile(path, JSON.stringify(res, null, 2));
+      chat.systemLine(`Saved raw JSON to ${path}`);
+    }
+  } else if (sub === "news") {
+    if (!query) {
+      chat.errorLine("Usage: /serper news <query> [flags]");
+      return;
+    }
+    const res = await serper.googleNews(query, {
+      gl: flags.gl as string | undefined,
+      hl: flags.hl as string | undefined,
+      location: flags.location as string | undefined,
+      num: flags.num as number | undefined,
+      page: flags.page as number | undefined,
+    });
+
+    const news = Array.isArray(res?.news) ? res.news.slice(0, 5) : [];
+    if (news.length) {
+      chat.systemLine("Top news:");
+      for (const item of news) {
+        chat.systemLine(`- ${item.title ?? "(no title)"} [${item.source ?? ""}] ${item.link ?? ""}`);
+      }
+    } else {
+      chat.systemLine("No news items.");
+    }
+
+    if (flags.save) {
+      const fsService = registry.requireFirstServiceByType(FileSystemService);
+      const path = String(flags.save);
+      await fsService.writeFile(path, JSON.stringify(res, null, 2));
+      chat.systemLine(`Saved raw JSON to ${path}`);
+    }
+  } else {
+    chat.systemLine("Unknown subcommand. Use: serp, news");
   }
 }

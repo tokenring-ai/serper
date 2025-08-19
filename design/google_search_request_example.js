@@ -24,4 +24,5 @@ async function makeRequest() {
 	}
 }
 
+// noinspection JSIgnoredPromiseFromCall
 makeRequest();
