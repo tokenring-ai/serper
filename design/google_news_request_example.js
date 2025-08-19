@@ -1,10 +1,10 @@
 const axios = require("axios");
-let data = JSON.stringify({
+const data = JSON.stringify({
 	q: "apple inc",
 	location: "United States",
 });
 
-let config = {
+const config = {
 	method: "post",
 	maxBodyLength: Infinity,
 	url: "https://google.serper.dev/news",
