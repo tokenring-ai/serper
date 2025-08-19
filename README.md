@@ -48,26 +48,26 @@ Example .tokenring/writer-config.mjs:
 
 ```js
 export default {
-  defaults: {
-    persona: 'writer',
-    // optionally list tools to enable explicitly; otherwise defaults are enabled
-    tools: [
-      'googleSerpSearch',
-      'googleNewsSearch',
-    ],
-  },
-  personas: {},
-  models: {},
-  templates: {},
-  serper: {
-    apiKey: process.env.SERPER_API_KEY,
-    // Optional request defaults
-    gl: 'us',       // Country
-    hl: 'en',       // Language
-    location: 'United States',
-    num: 10,
-    page: 1,        // 1-based
-  },
+ defaults: {
+  persona: 'writer',
+  // optionally list tools to enable explicitly; otherwise defaults are enabled
+  tools: [
+   'googleSerpSearch',
+   'googleNewsSearch',
+  ],
+ },
+ personas: {},
+ models: {},
+ templates: {},
+ serper: {
+  apiKey: process.env.SERPER_API_KEY,
+  // Optional request defaults
+  gl: 'us',       // Country
+  hl: 'en',       // Language
+  location: 'United States',
+  num: 10,
+  page: 1,        // 1-based
+ },
 }
 ```
 
@@ -105,14 +105,14 @@ export type SerperNewsOptions = SerperDefaults & {
 SerperService methods:
 
 ```ts
-const serper = new SerperService({ apiKey: process.env.SERPER_API_KEY! });
+const serper = new SerperService({apiKey: process.env.SERPER_API_KEY!});
 
 // Google Search
 const search = await serper.googleSearch('react hooks', {
   gl: 'us', hl: 'en', location: 'United States', num: 10, page: 1,
   autocorrect: true,
   // Pass through any additional params supported by Serper
-  extraParams: { someFlag: true },
+  extraParams: {someFlag: true},
 });
 
 // Google News
