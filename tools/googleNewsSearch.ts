@@ -1,5 +1,6 @@
 import ChatService from "@token-ring/chat/ChatService";
 import type {Registry} from "@token-ring/registry";
+import {TokenRingToolDefinition} from "@token-ring/registry/ToolRegistry";
 import {z} from "zod";
 import SerperService from "../SerperService.ts";
 
