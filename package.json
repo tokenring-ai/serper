@@ -6,6 +6,7 @@
   "@token-ring/ai-client": "0.1.0",
   "@token-ring/chat": "0.1.0",
   "@token-ring/registry": "0.1.0",
+  "@token-ring/websearch": "0.1.0",
   "zod": "^4.0.17"
  },
  "devDependencies": {
