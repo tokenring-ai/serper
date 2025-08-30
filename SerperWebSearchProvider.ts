@@ -1,4 +1,4 @@
-import WebSearchResource, {type WebSearchOptions, type WebSearchResult, type WebPageOptions, type WebPageResult} from "@token-ring/websearch/WebSearchResource";
+import WebSearchProvider, {type WebSearchProviderOptions, type WebSearchResult, type WebPageOptions, type WebPageResult} from "@token-ring/websearch/WebSearchProvider";
 import {doFetchWithRetry} from "@token-ring/utility/doFetchWithRetry";
 
 export type SerperDefaults = {
@@ -9,7 +9,7 @@ export type SerperDefaults = {
   page?: number;
 };
 
-export type SerperConfig = {
+export type SerperWebSearchProviderOptions = {
   apiKey: string;
   defaults?: SerperDefaults;
 };
@@ -114,13 +114,13 @@ export type SerperNewsOptions = SerperDefaults & {
   extraParams?: Record<string, string | number | boolean>;
 };
 
-export default class SerperWebSearchResource extends WebSearchResource {
-  constructor(private config: SerperConfig) {
+export default class SerperWebSearchProvider extends WebSearchProvider {
+  constructor(private config: SerperWebSearchProviderOptions) {
     super();
     if (!config?.apiKey) throw new Error("SerperWebSearchResource requires apiKey");
   }
 
-  async searchWeb(query: string, options?: WebSearchOptions): Promise<WebSearchResult> {
+  async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
     const results = await this.googleSearch(query, {
       gl: options?.countryCode,
       hl: options?.language,
@@ -131,7 +131,7 @@ export default class SerperWebSearchResource extends WebSearchResource {
     return {results};
   }
 
-  async searchNews(query: string, options?: WebSearchOptions): Promise<WebSearchResult> {
+  async searchNews(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
     const results = await this.googleNews(query, {
       gl: options?.countryCode,
       hl: options?.language,

@@ -4,4 +4,4 @@ export const name = packageJSON.name;
 export const version = packageJSON.version;
 export const description = packageJSON.description;
 
-export {default as SerperWebSearchResource} from "./SerperWebSearchResource.ts";
+export {default as SerperWebSearchResource} from "./SerperWebSearchProvider.ts";
