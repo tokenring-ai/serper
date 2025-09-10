@@ -1,5 +1,10 @@
-import WebSearchProvider, {type WebSearchProviderOptions, type WebSearchResult, type WebPageOptions, type WebPageResult} from "@token-ring/websearch/WebSearchProvider";
-import {doFetchWithRetry} from "@token-ring/utility/doFetchWithRetry";
+import {doFetchWithRetry} from "@tokenring-ai/utility/doFetchWithRetry";
+import WebSearchProvider, {
+  type WebPageOptions,
+  type WebPageResult,
+  type WebSearchProviderOptions,
+  type WebSearchResult
+} from "@tokenring-ai/websearch/WebSearchProvider";
 
 export type SerperDefaults = {
   gl?: string;
@@ -162,7 +167,10 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
   }
 
   private async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<SerperSearchResponse> {
-    const body = this.buildPayload(query, {...opts, type: "search", ...(opts.extraParams || {})}) as SerperSearchRequest;
+    const body = this.buildPayload(query, {
+      ...opts,
+      type: "search", ...(opts.extraParams || {})
+    }) as SerperSearchRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/search", {
       method: "POST",
       headers: {

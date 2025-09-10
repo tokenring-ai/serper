@@ -82,8 +82,8 @@ Implementation in TokenRing Writer app
 - Package registration (similar to other packages like scraperapi, ghost-io/template):
 - Import the package and service in src/tr-writer.ts:
   ```ts
-  import * as SerperPackage from "@token-ring/serper";
-  import { SerperService } from "@token-ring/serper";
+  import * as SerperPackage from "@tokenring-ai/serper";
+  import { SerperService } from "@tokenring-ai/serper";
   ```
 - Add the package to the registry alongside others:
   ```ts

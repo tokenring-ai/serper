@@ -1,4 +1,4 @@
-# @token-ring/serper
+# @tokenring-ai/serper
 
 Serper.dev integration for the Token Ring ecosystem. This package provides:
 
@@ -20,8 +20,8 @@ This package is already wired into the Token Ring Writer app in this repository.
 register the package and service with the Registry:
 
 ```ts
-import * as SerperPackage from "@token-ring/serper";
-import {SerperService} from "@token-ring/serper";
+import * as SerperPackage from "@tokenring-ai/serper";
+import {SerperService} from "@tokenring-ai/serper";
 
 await registry.addPackages(
   // ... other packages
@@ -143,7 +143,7 @@ The --save flag writes the raw JSON response to a file via the filesystem servic
 
 ## Tools (for agents)
 
-These tools are exported under @token-ring/serper/tools and are auto-registered when the package is added to the
+These tools are exported under @tokenring-ai/serper/tools and are auto-registered when the package is added to the
 registry:
 
 - googleSerpSearch
