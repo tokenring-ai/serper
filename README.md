@@ -1,164 +1,169 @@
-# @tokenring-ai/serper
+# Serper Package Documentation
 
-Serper.dev integration for the Token Ring ecosystem. This package provides:
+## Overview
 
-- SerperService for calling Serper.dev Google Search and Google News endpoints
-- Chat command /serper to run quick searches from the CLI
-- Two agent tools (googleSerpSearch and googleNewsSearch) that return structured JSON for use by AI workflows
+The `@tokenring-ai/serper` package provides an integration with the Serper.dev API for performing Google web searches and news searches within the Token Ring AI framework. It extends the `WebSearchProvider` from `@tokenring-ai/websearch` to enable seamless web search capabilities, including organic search results, knowledge graphs, related searches, and news articles. This package handles API requests to Serper.dev, which acts as a proxy for Google Search and News, parsing responses into structured formats. It supports features like location-based searches (via `gl` and `location`), language settings (`hl`), pagination, and autocorrection.
 
-## Features
+The primary purpose is to allow Token Ring agents or applications to query the web for real-time information without directly interfacing with Google, reducing complexity and potential blocking issues. It includes retry logic via `doFetchWithRetry` from `@tokenring-ai/utility` and error handling for common API issues like rate limits or invalid keys.
 
-- Google Search (SERP) via POST https://google.serper.dev/search
-- Google News via POST https://google.serper.dev/news
-- Optional defaults (gl, hl, location, num, page) with per-call overrides
-- Basic rate-limit handling with retries and jitter on 429/5xx
-- Helpful error objects with status and hints
+## Installation/Setup
 
-## Installation and registration
+This package is designed as part of the Token Ring monorepo. To use it:
 
-This package is already wired into the Token Ring Writer app in this repository. If you are integrating manually,
-register the package and service with the Registry:
+1. Ensure you have Node.js (v18+) and npm/yarn installed.
+2. Install dependencies in the root project:
+   ```
+   npm install
+   ```
+   or
+   ```
+   yarn install
+   ```
+3. Obtain a Serper.dev API key from [serper.dev](https://serper.dev) and set it as an environment variable `SERPER_API_KEY` or pass it directly to the provider.
+4. Import and instantiate the provider in your code (see Usage Examples).
 
-```ts
-import * as SerperPackage from "@tokenring-ai/serper";
-import {SerperService} from "@tokenring-ai/serper";
+No separate build step is required for development; it uses ES modules (`type: "module"`). For testing, run `npm test` (uses Vitest).
 
-await registry.addPackages(
-  // ... other packages
-  SerperPackage,
-);
+## Package Structure
 
-await registry.services.addServices(
-  new SerperService({apiKey: process.env.SERPER_API_KEY!})
-);
-```
+The package is located in `pkg/serper/` and contains:
 
-The Writer app (src/tr-writer.ts) conditionally registers SerperService if a serper configuration with apiKey is present
-in your .tokenring/writer-config file.
+- `index.ts`: Entry point exporting the main `SerperWebSearchResource` (default export from `SerperWebSearchProvider.ts`) and package metadata from `package.json`.
+- `SerperWebSearchProvider.ts`: Core implementation extending `WebSearchProvider`, handling search requests, news queries, and page fetching.
+- `package.json`: Defines package metadata, dependencies, and exports.
+- `README.md`: This documentation file.
+- `LICENSE`: MIT license.
+- `design/`: Directory with example files:
+  - `google_search_request_example.js`: Sample search request payload.
+  - `google_news_request_example.js`: Sample news request payload.
+  - `implementation.md`: Notes on implementation details.
+  - `google_search_result_example.json`: Example search response.
+  - `google_news_response_example.json`: Example news response.
 
-## Configuration
+No additional subdirectories or configs beyond these.
 
-SerperService requires an API key from serper.dev.
+## Core Components
 
-Environment variable:
+### SerperWebSearchProvider Class
 
-- SERPER_API_KEY: your Serper.dev API key
+This is the main class, extending `WebSearchProvider` from `@tokenring-ai/websearch`. It manages interactions with the Serper.dev API.
 
-Example .tokenring/writer-config.mjs:
+- **Constructor**: Initializes with `SerperWebSearchProviderOptions`.
+  - Parameters:
+    - `config.apiKey`: Required string (Serper.dev API key).
+    - `config.defaults?`: Optional `SerperDefaults` for global settings like `gl` (country code), `hl` (language), `location`, `num` (results per page), `page`.
+  - Throws an error if `apiKey` is missing.
 
-```js
-export default {
- defaults: {
-  persona: 'writer',
-  // optionally list tools to enable explicitly; otherwise defaults are enabled
-  tools: [
-   'googleSerpSearch',
-   'googleNewsSearch',
-  ],
- },
- personas: {},
- models: {},
- templates: {},
- serper: {
-  apiKey: process.env.SERPER_API_KEY,
-  // Optional request defaults
-  gl: 'us',       // Country
-  hl: 'en',       // Language
-  location: 'United States',
-  num: 10,
-  page: 1,        // 1-based
- },
-}
-```
+- **searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>**
+  - Performs a Google web search.
+  - Maps `options` (e.g., `countryCode` to `gl`, `language` to `hl`) to Serper parameters.
+  - Returns `{ results: WebSearchResult[] }` where results are derived from `SerperSearchResponse` (organic results, knowledge graph, etc.).
+  - Internally calls `googleSearch` which builds a `SerperSearchRequest` and POSTs to `https://google.serper.dev/search`.
 
-Type definitions (simplified):
+- **searchNews(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>**
+  - Performs a Google News search.
+  - Similar mapping as `searchWeb`.
+  - Returns `{ results: WebSearchResult[] }` based on `SerperNewsResponse` (news articles with title, link, snippet, date, source).
+  - Internally calls `googleNews` POSTing to `https://google.serper.dev/news`.
 
-```ts
-export type SerperDefaults = {
-  gl?: string;
-  hl?: string;
-  location?: string;
-  num?: number;
-  page?: number; // 1-based
-};
+- **fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>**
+  - Fetches the HTML content of a webpage using native `fetch` with optional timeout and AbortController.
+  - Returns `{ html: string }`.
+  - Throws errors for fetch failures.
 
-export type SerperConfig = {
-  apiKey: string;
-  defaults?: SerperDefaults;
-  fetchImpl?: typeof fetch; // injectable HTTP client for tests
-};
+- **Private Methods**:
+  - `buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown>`: Constructs the API request body, merging defaults, options, and cleaning undefined/null values. Requires `q` (query); throws 400 error if missing.
+  - `googleSearch` and `googleNews`: Handle API calls with `doFetchWithRetry`, including headers (`X-API-KEY`, `Content-Type: application/json`).
+  - `parseJsonOrThrow(res: Response, context: string): Promise<T>`: Parses JSON response; throws enhanced errors with status, hints (e.g., for 401/429), and details.
 
-export type SerperSearchOptions = SerperDefaults & {
-  autocorrect?: boolean;
-  type?: 'search';
-  extraParams?: Record<string, string | number | boolean>;
-};
+Key interactions: Public methods delegate to private API callers, which use shared payload building and parsing. Results conform to `WebSearchProvider` interfaces for compatibility with Token Ring's websearch module. Error handling includes retries (via utility) and context-specific messages.
 
-export type SerperNewsOptions = SerperDefaults & {
-  type?: 'news';
-  extraParams?: Record<string, string | number | boolean>;
-};
-```
+### Types
 
-## API
+The package defines TypeScript types for requests/responses:
+- `SerperSearchRequest`/`SerperNewsRequest`: Input payloads (e.g., `q`, `gl`, `num`, `type`).
+- `SerperSearchResponse`/`SerperNewsResponse`: Output structures (e.g., `organic: SerperOrganicResult[]`, `news: SerperNewsResult[]`).
+- Sub-types like `SerperOrganicResult` (title, link, snippet, position), `SerperKnowledgeGraph`, `SerperNewsResult`.
+- Options: `SerperWebSearchProviderOptions`, `SerperSearchOptions` (extends defaults with `autocorrect`, `extraParams`).
 
-SerperService methods:
+These ensure type safety and match Serper.dev's API schema.
 
-```ts
-const serper = new SerperService({apiKey: process.env.SERPER_API_KEY!});
+## Usage Examples
 
-// Google Search
-const search = await serper.googleSearch('react hooks', {
-  gl: 'us', hl: 'en', location: 'United States', num: 10, page: 1,
-  autocorrect: true,
-  // Pass through any additional params supported by Serper
-  extraParams: {someFlag: true},
+### Basic Web Search
+
+```typescript
+import SerperWebSearchProvider from '@tokenring-ai/serper';
+
+const provider = new SerperWebSearchProvider({
+  apiKey: process.env.SERPER_API_KEY!,
+  defaults: { gl: 'us', hl: 'en', num: 10 }
 });
 
-// Google News
-const news = await serper.googleNews('artificial intelligence', {
-  gl: 'us', hl: 'en', location: 'United States', num: 10, page: 1,
-});
+const results = await provider.searchWeb('Token Ring AI');
+console.log(results.results); // Array of WebSearchResult objects
 ```
 
-Errors on non-2xx responses include a status and hint when available (e.g., 401 => "Check SERPER_API_KEY", 429 => "
-Reduce request rate").
+### News Search with Options
 
-## CLI command
+```typescript
+const newsResults = await provider.searchNews('Latest AI news', {
+  countryCode: 'us',
+  num: 5,
+  page: 1
+});
+console.log(newsResults.results); // News articles
+```
 
-Once registered, you can use the /serper chat command in the Writer app REPL:
+### Fetch a Webpage
 
-- /serper
-  serp <query> [--gl <code>] [--hl <code>] [--location <string>] [--num <n>] [--page <n>] [--autocorrect] [--save <path>]
-- /serper news <query> [--gl <code>] [--hl <code>] [--location <string>] [--num <n>] [--page <n>] [--save <path>]
+```typescript
+const page = await provider.fetchPage('https://example.com', { timeout: 5000 });
+console.log(page.html); // Raw HTML string
+```
 
-Examples:
+Integrate with Token Ring agents by registering the provider in agent configurations for tool usage.
 
-- /serper serp typescript best practices
-- /serper news artificial intelligence --num 10
-- /serper serp react hooks --gl us --hl en
-- /serper serp node.js --save search-results.json
+## Configuration Options
 
-The --save flag writes the raw JSON response to a file via the filesystem service.
+- **API Key**: Required; set via `config.apiKey` or environment variable (checked in error hints).
+- **Defaults (`SerperDefaults`)**: Optional global overrides for `gl` (e.g., 'us', 'uk'), `hl` (e.g., 'en', 'fr'), `location` (e.g., 'Austin,Texas,United States'), `num` (1-100, default 10), `page` (starting from 1).
+- **Per-Request Options**:
+  - Inherit from `WebSearchProviderOptions`: `countryCode`, `language`, `location`, `num`, `page`.
+  - `SerperSearchOptions`/`SerperNewsOptions`: Add `autocorrect` (boolean), `type` ('search'/'news'), `extraParams` (Record for custom Serper params).
+- Environment: Use `SERPER_API_KEY` for security.
 
-## Tools (for agents)
+No additional configs; all via constructor/options.
 
-These tools are exported under @tokenring-ai/serper/tools and are auto-registered when the package is added to the
-registry:
+## API Reference
 
-- googleSerpSearch
-- Parameters: { query: string, gl?: string, hl?: string, location?: string, num?: number, page?: number, autocorrect?:
-  boolean, extraParams?: Record<string, string|number|boolean> }
-- Returns: { results?: any, error?: string }
-- googleNewsSearch
-- Parameters: { query: string, gl?: string, hl?: string, location?: string, num?: number, page?: number, extraParams?:
-  Record<string, string|number|boolean> }
-- Returns: { results?: any, error?: string }
+- **Class: `SerperWebSearchProvider`**
+  - `constructor(config: SerperWebSearchProviderOptions)`
+  - `searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>`
+  - `searchNews(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>`
+  - `fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>`
 
-The results are the structured JSON bodies returned by Serper.
+- **Exported from index.ts**: `SerperWebSearchResource` (alias for the class), `packageInfo: TokenRingPackage`.
 
-## Notes
+- **Types**: As detailed in Core Components (e.g., `SerperSearchResponse`).
 
-- Respect Serper.dev and Google usage policies. Avoid abusive querying.
-- Retries with exponential backoff and jitter are applied on HTTP 429 and 5xx.
-- See pkg/serper/design/* for example requests and responses.
+Public APIs are minimal, focusing on the three main methods for compatibility with `WebSearchProvider`.
+
+## Dependencies
+
+- `@tokenring-ai/ai-client@0.1.0`
+- `@tokenring-ai/agent@0.1.0`
+- `@tokenring-ai/websearch@0.1.0`
+- `zod@^4.0.17` (for schema validation, though not directly used in core code)
+
+Dev dependencies: `vitest@^3.2.4`, `@vitest/coverage-v8@^3.2.4`.
+
+## Contributing/Notes
+
+- **Testing**: Run `npm test` for unit tests (coverage via V8). Focus on API integration tests.
+- **Building**: Uses ES modules; no build step needed. For production, bundle via your app's build tool.
+- **Limitations**: Relies on Serper.dev quotas (check credits in news responses). Rate limits (429 errors) suggest exponential backoff via retries. Binary fetches not supported; text/HTML only. No image/video search. Examples in `design/` provide raw API payloads/responses for reference.
+- **License**: MIT (see LICENSE).
+- Contributions: Fork, PR with tests. Ensure type safety and error handling.
+
+This documentation is based on code analysis of version 0.1.0.
