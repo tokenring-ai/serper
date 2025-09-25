@@ -122,7 +122,7 @@ export type SerperNewsOptions = SerperDefaults & {
 export default class SerperWebSearchProvider extends WebSearchProvider {
   constructor(private config: SerperWebSearchProviderOptions) {
     super();
-    if (!config?.apiKey) throw new Error("SerperWebSearchResource requires apiKey");
+    if (!config?.apiKey) throw new Error("SerperWebSearchProvider requires apiKey");
   }
 
   async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
@@ -183,7 +183,12 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
   }
 
   private async googleNews(query: string, opts: SerperNewsOptions = {}): Promise<SerperNewsResponse> {
-    const body = this.buildPayload(query, {...opts, type: "news", ...(opts.extraParams || {})}) as SerperNewsRequest;
+    const body = this.buildPayload(query, {
+      ...opts,
+      tbs: "qdr:h",  // TODO: Make the date range selectable
+      type: "news",
+      ...(opts.extraParams || {})
+    }) as SerperNewsRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/news", {
       method: "POST",
       headers: {

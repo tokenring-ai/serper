@@ -8,4 +8,4 @@ export const packageInfo: TokenRingPackage = {
 };
 
 
-export {default as SerperWebSearchResource} from "./SerperWebSearchProvider.ts";
+export {default as SerperWebSearchProvider} from "./SerperWebSearchProvider.ts";
