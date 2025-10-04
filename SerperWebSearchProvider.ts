@@ -5,19 +5,23 @@ import WebSearchProvider, {
   type WebSearchProviderOptions,
   type WebSearchResult
 } from "@tokenring-ai/websearch/WebSearchProvider";
+import {z} from "zod";
 
-export type SerperDefaults = {
-  gl?: string;
-  hl?: string;
-  location?: string;
-  num?: number;
-  page?: number;
-};
+export const SerperDefaultsSchema = z.object({
+  gl: z.string().optional(),
+  hl: z.string().optional(),
+  location: z.string().optional(),
+  num: z.number().optional(),
+  page: z.number().optional(),
+});
 
-export type SerperWebSearchProviderOptions = {
-  apiKey: string;
-  defaults?: SerperDefaults;
-};
+export const SerperWebSearchProviderOptionsSchema = z.object({
+  apiKey: z.string(),
+  defaults: SerperDefaultsSchema.optional(),
+});
+
+export type SerperWebSearchProviderOptions = z.infer<typeof SerperWebSearchProviderOptionsSchema>;
+
 
 export type SerperSearchRequest = {
   q: string;
@@ -108,13 +112,13 @@ export type SerperNewsResponse = {
   credits?: number;
 };
 
-export type SerperSearchOptions = SerperDefaults & {
+export type SerperSearchOptions = z.infer<typeof SerperDefaultsSchema> & {
   autocorrect?: boolean;
   type?: "search";
   extraParams?: Record<string, string | number | boolean>;
 };
 
-export type SerperNewsOptions = SerperDefaults & {
+export type SerperNewsOptions = z.infer<typeof SerperDefaultsSchema> & {
   type?: "news";
   extraParams?: Record<string, string | number | boolean>;
 };
