@@ -3,7 +3,7 @@ import {WebSearchConfigSchema, WebSearchService} from "@tokenring-ai/websearch";
 import packageJSON from './package.json' with {type: 'json'};
 import SerperWebSearchProvider, {SerperWebSearchProviderOptionsSchema} from "./SerperWebSearchProvider.js";
 
-export const packageInfo: TokenRingPackage = {
+export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
@@ -21,6 +21,6 @@ export const packageInfo: TokenRingPackage = {
       });
     }
   },
-};
+} as TokenRingPackage;
 
 export {default as SerperWebSearchProvider} from "./SerperWebSearchProvider.ts";
