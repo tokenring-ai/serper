@@ -4,7 +4,8 @@
  "description": "Serper.dev integration for Token Ring (Google Search and News)",
  "dependencies": {
   "@tokenring-ai/agent": "0.1.0",
-  "@tokenring-ai/websearch": "0.1.0"
+  "@tokenring-ai/websearch": "0.1.0",
+  "@tokenring-ai/utility": "0.1.0"
  },
  "devDependencies": {
   "vitest": "^3.2.4",
