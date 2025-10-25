@@ -11,7 +11,7 @@ export default {
     const websearchConfig = agentTeam.getConfigSlice("websearch", WebSearchConfigSchema);
 
     if (websearchConfig) {
-      agentTeam.services.waitForItemByType(WebSearchService).then(cdnService => {
+      agentTeam.waitForService(WebSearchService, cdnService => {
         for (const name in websearchConfig.providers) {
           const provider = websearchConfig.providers[name];
           if (provider.type === "serper") {
