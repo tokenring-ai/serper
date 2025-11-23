@@ -1,4 +1,4 @@
-import {doFetchWithRetry} from "@tokenring-ai/utility/doFetchWithRetry";
+import {doFetchWithRetry} from "@tokenring-ai/utility/http/doFetchWithRetry";
 import WebSearchProvider, {
   type WebPageOptions,
   type WebPageResult,
