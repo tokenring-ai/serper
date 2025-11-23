@@ -1,4 +1,5 @@
-import {AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import TokenRingApp from "@tokenring-ai/app";
+import {TokenRingPlugin} from "@tokenring-ai/app";
 import {WebSearchConfigSchema, WebSearchService} from "@tokenring-ai/websearch";
 import packageJSON from './package.json' with {type: 'json'};
 import SerperWebSearchProvider, {SerperWebSearchProviderOptionsSchema} from "./SerperWebSearchProvider.js";
@@ -7,11 +8,11 @@ export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
-  install(agentTeam: AgentTeam) {
-    const websearchConfig = agentTeam.getConfigSlice("websearch", WebSearchConfigSchema);
+  install(app: TokenRingApp) {
+    const websearchConfig = app.getConfigSlice("websearch", WebSearchConfigSchema);
 
     if (websearchConfig) {
-      agentTeam.waitForService(WebSearchService, cdnService => {
+      app.waitForService(WebSearchService, cdnService => {
         for (const name in websearchConfig.providers) {
           const provider = websearchConfig.providers[name];
           if (provider.type === "serper") {
@@ -21,6 +22,6 @@ export default {
       });
     }
   },
-} as TokenRingPackage;
+} as TokenRingPlugin;
 
 export {default as SerperWebSearchProvider} from "./SerperWebSearchProvider.ts";
