@@ -9,7 +9,7 @@ const config = {
  maxBodyLength: Infinity,
  url: "https://google.serper.dev/news",
  headers: {
-  "X-API-KEY": "170091cc0ee87094149f6e4f4879b822ad6ddcc7",
+  "X-API-KEY": "--- YOUR API KEY HERE ---",
   "Content-Type": "application/json",
  },
  data: data,

@@ -1,9 +1,11 @@
 import {doFetchWithRetry} from "@tokenring-ai/utility/http/doFetchWithRetry";
+import pick from "@tokenring-ai/utility/object/pick";
 import WebSearchProvider, {
+  NewsSearchResult,
   type WebPageOptions,
   type WebPageResult,
   type WebSearchProviderOptions,
-  type WebSearchResult
+  WebSearchResult,
 } from "@tokenring-ai/websearch/WebSearchProvider";
 import {z} from "zod";
 
@@ -19,6 +21,7 @@ export const SerperWebSearchProviderOptionsSchema = z.object({
   apiKey: z.string(),
   defaults: SerperDefaultsSchema.optional(),
 });
+
 
 export type SerperWebSearchProviderOptions = z.infer<typeof SerperWebSearchProviderOptionsSchema>;
 
@@ -112,6 +115,22 @@ export type SerperNewsResponse = {
   credits?: number;
 };
 
+export type SerperPageResponse = {
+  text: string;
+  markdown: string;
+  metadata: {
+    title?: string;
+    description?: string;
+    "og:title"?: string;
+    "og:description"?: string;
+    "og:url"?: string;
+    "og:image"?: string;
+    "og:type"?: string;
+    "og:site_name"?: string;
+    [key: string]: any;
+  };
+  credits?: number;
+};
 export type SerperSearchOptions = z.infer<typeof SerperDefaultsSchema> & {
   autocorrect?: boolean;
   type?: "search";
@@ -130,42 +149,62 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
   }
 
   async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
-    const results = await this.googleSearch(query, {
-      gl: options?.countryCode,
-      hl: options?.language,
-      location: options?.location,
-      num: options?.num,
-      page: options?.page,
-    });
-    return {results};
+    return pick(
+      await this.googleSearch(query, {
+        gl: options?.countryCode,
+        hl: options?.language,
+        location: options?.location,
+        num: options?.num,
+        page: options?.page,
+      }),
+      ["knowledgeGraph","organic", "peopleAlsoAsk", "relatedSearches"]
+    );
   }
 
-  async searchNews(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
-    const results = await this.googleNews(query, {
-      gl: options?.countryCode,
-      hl: options?.language,
-      location: options?.location,
-      num: options?.num,
-      page: options?.page,
-    });
-    return {results};
+  async searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult> {
+    return pick(
+      await this.googleNews(query, {
+        gl: options?.countryCode,
+        hl: options?.language,
+        location: options?.location,
+        num: options?.num,
+        page: options?.page,
+      }),
+      ["news"]
+    );
   }
-
   async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult> {
     try {
       const controller = new AbortController();
       const timeoutId = options?.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
 
-      const response = await fetch(url, {
+      const response = await fetch("https://scrape.serper.dev", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": this.config.apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url,
+          includeMarkdown: true
+        }),
         signal: controller.signal
       });
 
       if (timeoutId) clearTimeout(timeoutId);
 
-      return {
-        html: await response.text()
-      };
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new Error(`Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`);
+      }
+
+      const result = await response.json() as SerperPageResponse;
+
+      return pick(result, ["markdown", "metadata"]);
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Failed to fetch page: Request timeout`);
+      }
       throw new Error(`Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
