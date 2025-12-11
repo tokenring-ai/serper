@@ -1,23 +1,23 @@
 {
- "name": "@tokenring-ai/serper",
- "version": "0.2.0",
- "description": "Serper.dev integration for Token Ring (Google Search and News)",
- "dependencies": {
-  "@tokenring-ai/app": "0.2.0",
-  "zod": "^4.1.13",
-  "@tokenring-ai/agent": "0.2.0",
-  "@tokenring-ai/websearch": "0.2.0",
-  "@tokenring-ai/utility": "0.2.0"
- },
- "devDependencies": {
-  "vitest": "^4.0.14",
-  "@vitest/coverage-v8": "^4.0.14"
- },
- "exports": {
-  ".": "./index.ts",
-  "./*": "./*.ts"
- },
- "types": "./index.ts",
- "license": "MIT",
- "type": "module"
+  "name": "@tokenring-ai/serper",
+  "version": "0.2.0",
+  "description": "Serper.dev integration for Token Ring (Google Search and News)",
+  "dependencies": {
+    "@tokenring-ai/app": "0.2.0",
+    "zod": "^4.1.13",
+    "@tokenring-ai/agent": "0.2.0",
+    "@tokenring-ai/websearch": "0.2.0",
+    "@tokenring-ai/utility": "0.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.15"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./*": "./*.ts"
+  },
+  "types": "./index.ts",
+  "license": "MIT",
+  "type": "module"
 }
