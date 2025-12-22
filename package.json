@@ -10,8 +10,9 @@
     "@tokenring-ai/utility": "0.2.0"
   },
   "devDependencies": {
-    "vitest": "^4.0.15",
-    "@vitest/coverage-v8": "^4.0.15"
+    "vitest": "catalog:",
+    "@vitest/coverage-v8": "^4.0.15",
+    "typescript": "catalog:"
   },
   "exports": {
     ".": "./index.ts",
@@ -19,5 +20,11 @@
   },
   "types": "./index.ts",
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc --noEmit",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  }
 }
