@@ -7,7 +7,7 @@ Serper.dev integration package for the Token Ring AI framework, providing Google
 
 ## Overview
 
-The `@tokenring-ai/serper` package extends the `@tokenring-ai/websearch` module to provide seamless integration with Serper.dev's Google Search and News APIs. It enables Token Ring agents and applications to perform real-time web searches and fetch web page content without direct Google API integration.
+The `@tokenring-ai/serper` package extends the `@tokenring-ai/websearch` module to provide seamless integration with Serper.dev's Google Search and News APIs. It enables Token Ring agents and applications to perform real-time web searches, fetch news articles, and extract web page content without direct Google API integration.
 
 ### Key Features
 
@@ -27,7 +27,7 @@ This package is part of the Token Ring monorepo. To use it:
 
 1. Install the package in your project:
 ```bash
-npm install @tokenring-ai/serper
+bun install @tokenring-ai/serper
 ```
 
 2. Obtain a Serper.dev API key from [serper.dev](https://serper.dev)
@@ -377,7 +377,7 @@ try {
 ### Testing
 
 ```bash
-npm test
+bun run test
 ```
 
 ### Building
@@ -414,6 +414,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 - `@tokenring-ai/agent`: Agent orchestration system
 - `@tokenring-ai/utility`: HTTP utilities and retry logic
 
----
+--- 
 
 *Part of the Token Ring AI monorepo - building the future of AI-powered development tools.*
