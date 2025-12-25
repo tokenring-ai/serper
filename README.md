@@ -364,6 +364,14 @@ try {
 }
 ```
 
+## Rate Limits and Credits
+
+The package includes credit information in news responses and handles rate limits with built-in retry logic:
+
+- **Credit Tracking**: News responses include `credits` field showing API usage
+- **Rate Limiting**: Automatic retries with exponential backoff for 429/5xx errors
+- **Error Hints**: Clear messages for common issues (invalid API key, rate limits)
+
 ## Dependencies
 
 - `@tokenring-ai/app@0.2.0`
@@ -384,11 +392,12 @@ bun run test
 
 The package uses ES modules and requires no build step for development.
 
-### Rate Limits and Credits
+### Request/Response Examples
 
-- The package includes credit information in news responses
-- Rate limits (429 errors) indicate when to reduce request frequency
-- Retry logic with exponential backoff is built-in
+Example request/response pairs are available in the design directory:
+- `google_search_request_example.js` and `google_search_result_example.json`
+- `google_news_request_example.js` and `google_news_response_example.json`
+- `fetch_page_request_example.js` and `fetch_page_response_example.json`
 
 ## Limitations
 
