@@ -1,61 +1,86 @@
 # @tokenring-ai/serper
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/tokenring-ai/tokenring)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
-
-Serper.dev integration package for the Token Ring AI framework, providing Google Search and News capabilities through the Serper API proxy.
-
 ## Overview
 
-The `@tokenring-ai/serper` package extends the `@tokenring-ai/websearch` module to provide seamless integration with Serper.dev's Google Search and News APIs. It enables Token Ring agents and applications to perform real-time web searches, fetch news articles, and extract web page content without direct Google API integration.
+Serper.dev integration package for the Token Ring AI framework, providing Google Search and News capabilities through the Serper API proxy. This package extends the `@tokenring-ai/websearch` module to enable seamless integration with Token Ring agents and applications for real-time web searches, news articles, and web page content extraction.
 
-### Key Features
+## Features
 
-- **Google Search Integration**: Perform organic web searches with knowledge graphs, related searches, and people also ask results
+- **Google Search Integration**: Perform organic web searches with knowledge graphs, related searches, and "people also ask" results
 - **Google News Search**: Access real-time news articles with source, date, and snippet information
-- **Web Page Fetching**: Extract HTML content and markdown from web pages using Serper's scraping service
+- **Web Page Fetching**: Extract markdown content and metadata from web pages using Serper's scraping service
 - **Location-Based Search**: Support for geographic targeting through `gl` and `location` parameters
 - **Language Support**: Multi-language search capabilities through `hl` parameter
 - **Plugin Architecture**: Automatic registration with Token Ring applications
 - **Retry Logic**: Built-in retry mechanism with exponential backoff
 - **Type Safety**: Full TypeScript support with Zod schema validation
-- **Error Handling**: Comprehensive error handling with helpful hints for common issues
+- **Comprehensive Error Handling**: Detailed error messages with hints for common issues
 
 ## Installation
 
-This package is part of the Token Ring monorepo. To use it:
-
-1. Install the package in your project:
 ```bash
 bun install @tokenring-ai/serper
 ```
 
-2. Obtain a Serper.dev API key from [serper.dev](https://serper.dev)
+## Chat Commands
 
-3. Set the API key as an environment variable or pass it directly to the provider
+This package does not include chat commands. To perform searches from the chat interface, use the websearch service provided by `@tokenring-ai/websearch`.
 
-## Package Structure
+## Plugin Configuration
 
+This package provides a Token Ring plugin that automatically registers the Serper provider with the websearch service.
+
+### Configuration Schema
+
+```typescript
+interface SerperPluginConfig {
+  websearch?: {
+    providers: {
+      [name: string]: {
+        type: 'serper';
+        apiKey: string;
+        defaults?: {
+          gl?: string;        // Country code (e.g., 'us', 'uk')
+          hl?: string;        // Language code (e.g., 'en', 'fr')
+          location?: string;  // Geographic location (e.g., 'Austin,Texas,United States')
+          num?: number;       // Number of results per page (1-100, default 10)
+          page?: number;      // Starting page number (default 1)
+        };
+      };
+    };
+  };
+}
 ```
-pkg/serper/
-├── SerperWebSearchProvider.ts    # Core implementation
-├── plugin.ts                     # Token Ring plugin integration
-├── index.ts                      # Package exports
-├── package.json                  # Package configuration
-├── README.md                     # This documentation
-└── design/                       # Example files and documentation
-    ├── google_search_request_example.js
-    ├── google_news_request_example.js
-    ├── fetch_page_request_example.js
-    ├── google_search_result_example.json
-    ├── google_news_response_example.json
-    ├── fetch_page_response_example.json
-    └── implementation.md
+
+### Configuration Example
+
+```typescript
+import TokenRingApp from '@tokenring-ai/app';
+
+const app = new TokenRingApp({
+  websearch: {
+    providers: {
+      serper: {
+        type: 'serper',
+        apiKey: process.env.SERPER_API_KEY!,
+        defaults: {
+          gl: 'us',
+          hl: 'en',
+          num: 10
+        }
+      }
+    }
+  }
+});
 ```
 
-## Core Components
+## Tools
 
-### SerperWebSearchProvider Class
+This package does not include tools. Tools for web search are provided by the `@tokenring-ai/websearch` package.
+
+## Services
+
+### SerperWebSearchProvider
 
 The main provider class that extends `WebSearchProvider` from `@tokenring-ai/websearch`.
 
@@ -67,16 +92,15 @@ constructor(config: SerperWebSearchProviderOptions)
 
 **Parameters:**
 - `apiKey` (required): Your Serper.dev API key
-- `defaults` (optional): Default search parameters including:
-  - `gl`: Country code (e.g., 'us', 'uk')
-  - `hl`: Language code (e.g., 'en', 'fr')
-  - `location`: Geographic location (e.g., 'Austin,Texas,United States')
-  - `num`: Number of results per page (1-100, default 10)
-  - `page`: Starting page number (default 1)
+- `defaults` (optional): Default search parameters
 
 #### Methods
 
-##### searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>
+##### searchWeb
+
+```typescript
+async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>
+```
 
 Performs a Google web search and returns organic results, knowledge graphs, and related searches.
 
@@ -87,7 +111,11 @@ console.log(results.organic); // Array of organic search results
 console.log(results.knowledgeGraph); // Knowledge graph if available
 ```
 
-##### searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult>
+##### searchNews
+
+```typescript
+async searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult>
+```
 
 Performs a Google News search and returns recent news articles.
 
@@ -97,7 +125,11 @@ const news = await provider.searchNews('AI technology news');
 console.log(news.news); // Array of news articles
 ```
 
-##### fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>
+##### fetchPage
+
+```typescript
+async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>
+```
 
 Fetches and extracts content from a web page using Serper's scraping service.
 
@@ -110,57 +142,17 @@ console.log(page.markdown); // Extracted markdown content
 console.log(page.metadata); // Page metadata (title, description, OpenGraph)
 ```
 
-## Configuration
+## Providers
 
-### Provider Options
+This package does not define providers. The `SerperWebSearchProvider` is a provider implementation that registers with the websearch service.
 
-```typescript
-interface SerperWebSearchProviderOptions {
-  apiKey: string;
-  defaults?: {
-    gl?: string;        // Country code
-    hl?: string;        // Language code  
-    location?: string;  // Geographic location
-    num?: number;       // Results per page
-    page?: number;      // Starting page
-  };
-}
-```
+## RPC Endpoints
 
-### Search Options
+This package does not define RPC endpoints.
 
-```typescript
-interface SerperSearchOptions extends SerperWebSearchProviderOptions {
-  autocorrect?: boolean;  // Enable autocorrection
-  type?: "search";        // Search type
-  extraParams?: Record<string, string | number | boolean>; // Additional parameters
-}
+## State Management
 
-interface SerperNewsOptions extends SerperWebSearchProviderOptions {
-  type?: "news";          // Search type
-  extraParams?: Record<string, string | number | boolean>; // Additional parameters
-}
-```
-
-### Environment Variables
-
-- `SERPER_API_KEY`: Your Serper.dev API key
-
-## Plugin Integration
-
-The package includes automatic plugin integration with Token Ring applications:
-
-```typescript
-import SerperPlugin from '@tokenring-ai/serper/plugin';
-
-// Automatically registers with Token Ring app
-// when included in the application configuration
-```
-
-The plugin automatically:
-- Validates configuration using Zod schemas
-- Registers the provider with the websearch service
-- Handles provider initialization and error scenarios
+This package does not implement state management.
 
 ## Usage Examples
 
@@ -224,35 +216,10 @@ console.log('Description:', page.metadata.description);
 console.log('Markdown content:', page.markdown.substring(0, 200) + '...');
 ```
 
-### Advanced Configuration
-
-```typescript
-const provider = new SerperWebSearchProvider({
-  apiKey: process.env.SERPER_API_KEY!,
-  defaults: {
-    gl: 'us',
-    hl: 'en',
-    location: 'San Francisco,California,United States',
-    num: 20,
-    page: 1
-  }
-});
-
-// Search with additional parameters
-const results = await provider.searchWeb('machine learning', {
-  countryCode: 'us',
-  language: 'en',
-  num: 10,
-  // Serper-specific options
-  autocorrect: true
-});
-```
-
 ### Integration with Token Ring Agents
 
 ```typescript
 import TokenRingApp from '@tokenring-ai/app';
-import SerperWebSearchProvider from '@tokenring-ai/serper';
 
 const app = new TokenRingApp({
   websearch: {
@@ -272,79 +239,27 @@ const app = new TokenRingApp({
 
 ## API Reference
 
-### Types
+### WebSearchResult
 
-#### SerperSearchResponse
+| Field | Type | Description |
+|-------|------|-------------|
+| `organic` | `OrganicResult[]` | Array of search results with title, link, snippet, and position |
+| `knowledgeGraph` | `KnowledgeGraph \| undefined` | Entity information with title, type, description, and attributes |
+| `peopleAlsoAsk` | `PeopleAlsoAsk[] \| undefined` | Related questions with answers and links |
+| `relatedSearches` | `RelatedSearch[] \| undefined` | Related search queries |
 
-```typescript
-{
-  searchParameters: SerperSearchParameters;
-  knowledgeGraph?: SerperKnowledgeGraph;
-  organic: SerperOrganicResult[];
-  peopleAlsoAsk?: SerperPeopleAlsoAsk[];
-  relatedSearches?: SerperRelatedSearch[];
-}
-```
+### NewsSearchResult
 
-#### SerperNewsResponse
+| Field | Type | Description |
+|-------|------|-------------|
+| `news` | `NewsItem[]` | Array of news articles with title, link, snippet, date, source, and position |
 
-```typescript
-{
-  searchParameters: SerperSearchParameters;
-  news: SerperNewsResult[];
-  credits?: number;
-}
-```
+### WebPageResult
 
-#### SerperPageResponse
-
-```typescript
-{
-  text: string;
-  markdown: string;
-  metadata: {
-    title?: string;
-    description?: string;
-    "og:title"?: string;
-    "og:description"?: string;
-    "og:url"?: string;
-    "og:image"?: string;
-    "og:type"?: string;
-    "og:site_name"?: string;
-    [key: string]: any;
-  };
-  credits?: number;
-}
-```
-
-### Result Types
-
-#### SerperOrganicResult
-
-```typescript
-{
-  title: string;
-  link: string;
-  snippet: string;
-  date?: string;
-  position: number;
-  attributes?: Record<string, string>;
-  sitelinks?: SerperSitelink[];
-}
-```
-
-#### SerperNewsResult
-
-```typescript
-{
-  title: string;
-  link: string;
-  snippet: string;
-  date: string;
-  source: string;
-  position: number;
-}
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `markdown` | `string` | Clean markdown-formatted content of the page |
+| `metadata` | `Record<string, any>` | Page metadata including title, description, OpenGraph properties |
 
 ## Error Handling
 
@@ -364,65 +279,41 @@ try {
 }
 ```
 
-## Rate Limits and Credits
-
-The package includes credit information in news responses and handles rate limits with built-in retry logic:
-
-- **Credit Tracking**: News responses include `credits` field showing API usage
-- **Rate Limiting**: Automatic retries with exponential backoff for 429/5xx errors
-- **Error Hints**: Clear messages for common issues (invalid API key, rate limits)
-
-## Dependencies
-
-- `@tokenring-ai/app@0.2.0`
-- `@tokenring-ai/agent@0.2.0`
-- `@tokenring-ai/websearch@0.2.0`
-- `@tokenring-ai/utility@0.2.0`
-- `zod@catalog:`
-
 ## Development
 
 ### Testing
 
 ```bash
 bun run test
+bun run test:coverage
 ```
 
-### Building
+### Package Structure
 
-The package uses ES modules and requires no build step for development.
+```
+pkg/serper/
+├── SerperWebSearchProvider.ts    # Core implementation
+├── plugin.ts                     # Token Ring plugin integration
+├── index.ts                      # Package exports
+├── package.json                  # Package configuration
+├── design/                       # Example files and documentation
+│   ├── google_search_request_example.js
+│   ├── google_news_request_example.js
+│   ├── fetch_page_request_example.js
+│   ├── google_search_result_example.json
+│   ├── google_news_response_example.json
+│   ├── fetch_page_response_example.json
+│   └── implementation.md
+└── vitest.config.ts              # Test configuration
+```
 
-### Request/Response Examples
+### Contribution Guidelines
 
-Example request/response pairs are available in the design directory:
-- `google_search_request_example.js` and `google_search_result_example.json`
-- `google_news_request_example.js` and `google_news_response_example.json`
-- `fetch_page_request_example.js` and `fetch_page_response_example.json`
-
-## Limitations
-
-- Relies on Serper.dev quotas and rate limits
-- Only supports text/HTML content (no binary content)
-- Web page fetching limited to Serper's scraping capabilities
-- News search includes automatic date filtering (`tbs="qdr:h"`)
+- Follow established coding patterns
+- Add unit tests for new functionality
+- Update documentation for new features
+- Ensure all changes work with TokenRing agent framework
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request with comprehensive documentation
-
-## Related Packages
-
-- `@tokenring-ai/websearch`: Abstract web search provider interface
-- `@tokenring-ai/agent`: Agent orchestration system
-- `@tokenring-ai/utility`: HTTP utilities and retry logic
-
---- 
-
-*Part of the Token Ring AI monorepo - building the future of AI-powered development tools.*
+MIT License - see [LICENSE](./LICENSE) file for details.
