@@ -25,4 +25,4 @@ async function makeRequest() {
  }
 }
 
-makeRequest();
+await makeRequest();

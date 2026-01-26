@@ -12,7 +12,7 @@ Serper.dev integration package for the Token Ring AI framework, providing Google
 - **Location-Based Search**: Support for geographic targeting through `gl` and `location` parameters
 - **Language Support**: Multi-language search capabilities through `hl` parameter
 - **Plugin Architecture**: Automatic registration with Token Ring applications
-- **Retry Logic**: Built-in retry mechanism with exponential backoff
+- **Retry Logic**: Built-in retry mechanism with exponential backoff via `doFetchWithRetry`
 - **Type Safety**: Full TypeScript support with Zod schema validation
 - **Comprehensive Error Handling**: Detailed error messages with hints for common issues
 
@@ -24,7 +24,7 @@ bun install @tokenring-ai/serper
 
 ## Chat Commands
 
-This package does not include chat commands. To perform searches from the chat interface, use the websearch service provided by `@tokenring-ai/websearch`.
+This package does not include chat commands. Searches should be performed through the websearch service provided by `@tokenring-ai/websearch`.
 
 ## Plugin Configuration
 
@@ -33,23 +33,30 @@ This package provides a Token Ring plugin that automatically registers the Serpe
 ### Configuration Schema
 
 ```typescript
-interface SerperPluginConfig {
-  websearch?: {
-    providers: {
-      [name: string]: {
-        type: 'serper';
-        apiKey: string;
-        defaults?: {
-          gl?: string;        // Country code (e.g., 'us', 'uk')
-          hl?: string;        // Language code (e.g., 'en', 'fr')
-          location?: string;  // Geographic location (e.g., 'Austin,Texas,United States')
-          num?: number;       // Number of results per page (1-100, default 10)
-          page?: number;      // Starting page number (default 1)
-        };
-      };
-    };
-  };
-}
+import {z} from 'zod';
+
+export const SerperPluginConfigSchema = z.object({
+  websearch: z.object({
+    providers: z.record(z.object({
+      type: z.literal('serper'),
+      apiKey: z.string(),
+      defaults: SerperDefaultsSchema.optional(),
+    })),
+  }).optional(),
+});
+
+export const SerperDefaultsSchema = z.object({
+  gl: z.string().optional(),
+  hl: z.string().optional(),
+  location: z.string().optional(),
+  num: z.number().optional(),
+  page: z.number().optional(),
+});
+
+export const SerperWebSearchProviderOptionsSchema = z.object({
+  apiKey: z.string(),
+  defaults: SerperDefaultsSchema.optional(),
+});
 ```
 
 ### Configuration Example
@@ -73,10 +80,6 @@ const app = new TokenRingApp({
   }
 });
 ```
-
-## Tools
-
-This package does not include tools. Tools for web search are provided by the `@tokenring-ai/websearch` package.
 
 ## Services
 
@@ -104,11 +107,19 @@ async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebS
 
 Performs a Google web search and returns organic results, knowledge graphs, and related searches.
 
+**Parameters:**
+- `query` (required): Search query string
+- `options` (optional): Search options including `countryCode`, `language`, `location`, `num`, `page`
+
+**Returns:** `Promise<WebSearchResult>` containing organic results, knowledge graph, people also ask questions, and related searches
+
 **Example:**
 ```typescript
 const results = await provider.searchWeb('Token Ring AI framework');
 console.log(results.organic); // Array of organic search results
 console.log(results.knowledgeGraph); // Knowledge graph if available
+console.log(results.peopleAlsoAsk); // Array of related questions if available
+console.log(results.relatedSearches); // Array of related search queries if available
 ```
 
 ##### searchNews
@@ -119,10 +130,27 @@ async searchNews(query: string, options?: WebSearchProviderOptions): Promise<New
 
 Performs a Google News search and returns recent news articles.
 
+**Parameters:**
+- `query` (required): News search query string
+- `options` (optional): Search options including `countryCode`, `language`, `location`, `num`, `page`
+
+**Returns:** `Promise<NewsSearchResult>` containing array of news articles
+
 **Example:**
 ```typescript
-const news = await provider.searchNews('AI technology news');
-console.log(news.news); // Array of news articles
+const news = await provider.searchNews('artificial intelligence breakthroughs', {
+  countryCode: 'us',
+  num: 5,
+  page: 1
+});
+
+news.news.forEach(article => {
+  console.log(`Title: ${article.title}`);
+  console.log(`Source: ${article.source}`);
+  console.log(`Date: ${article.date}`);
+  console.log(`Snippet: ${article.snippet}`);
+  console.log(`Link: ${article.link}`);
+});
 ```
 
 ##### fetchPage
@@ -133,13 +161,20 @@ async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>
 
 Fetches and extracts content from a web page using Serper's scraping service.
 
+**Parameters:**
+- `url` (required): URL of the webpage to fetch
+- `options` (optional): Fetch options including `timeout` (in milliseconds)
+
+**Returns:** `Promise<WebPageResult>` containing markdown content and metadata
+
 **Example:**
 ```typescript
 const page = await provider.fetchPage('https://example.com', {
-  timeout: 5000
+  timeout: 10000
 });
+
 console.log(page.markdown); // Extracted markdown content
-console.log(page.metadata); // Page metadata (title, description, OpenGraph)
+console.log(page.metadata); // Page metadata including title, description, OpenGraph properties
 ```
 
 ## Providers
@@ -154,6 +189,119 @@ This package does not define RPC endpoints.
 
 This package does not implement state management.
 
+## Type Definitions
+
+### SerperSearchRequest
+
+Request payload structure for Google search
+
+```typescript
+{
+  q: string;
+  gl?: string;
+  hl?: string;
+  location?: string;
+  num?: number;
+  page?: number;
+  autocorrect?: boolean;
+  type?: "search";
+}
+```
+
+### SerperNewsRequest
+
+Request payload structure for Google News search
+
+```typescript
+{
+  q: string;
+  gl?: string;
+  location?: string;
+  num?: number;
+  page?: number;
+  type?: "news";
+}
+```
+
+### SerperSearchResponse
+
+Response structure for Google search
+
+```typescript
+{
+  searchParameters: SerperSearchParameters;
+  knowledgeGraph?: SerperKnowledgeGraph;
+  organic: SerperOrganicResult[];
+  peopleAlsoAsk?: SerperPeopleAlsoAsk[];
+  relatedSearches?: SerperRelatedSearch[];
+}
+```
+
+### SerperKnowledgeGraph
+
+```typescript
+{
+  title: string;
+  type: string;
+  website?: string;
+  imageUrl?: string;
+  description?: string;
+  descriptionSource?: string;
+  descriptionLink?: string;
+  attributes?: Record<string, string>;
+}
+```
+
+### SerperOrganicResult
+
+```typescript
+{
+  title: string;
+  link: string;
+  snippet: string;
+  date?: string;
+  position: number;
+  attributes?: Record<string, string>;
+  sitelinks?: SerperSitelink[];
+}
+```
+
+### SerperNewsResult
+
+```typescript
+{
+  title: string;
+  link: string;
+  snippet: string;
+  date: string;
+  source: string;
+  position: number;
+}
+```
+
+### SerperPageResponse
+
+Response structure for page fetch
+
+```typescript
+{
+  text: string;
+  markdown: string;
+  metadata: {
+    title?: string;
+    description?: string;
+    "og:title"?: string;
+    "og:description"?: string;
+    "og:url"?: string;
+    "og:image"?: string;
+    "og:type"?: string;
+    "og:site_name"?: string;
+    [key: string]: any;
+  };
+  credits?: number;
+}
+```
+
 ## Usage Examples
 
 ### Basic Web Search
@@ -163,10 +311,10 @@ import SerperWebSearchProvider from '@tokenring-ai/serper';
 
 const provider = new SerperWebSearchProvider({
   apiKey: process.env.SERPER_API_KEY!,
-  defaults: { 
-    gl: 'us', 
-    hl: 'en', 
-    num: 10 
+  defaults: {
+    gl: 'us',
+    hl: 'en',
+    num: 10
   }
 });
 
@@ -177,6 +325,10 @@ console.log('Organic results:', results.organic.length);
 // Access different result types
 if (results.knowledgeGraph) {
   console.log('Knowledge Graph:', results.knowledgeGraph.title);
+}
+
+if (results.peopleAlsoAsk) {
+  console.log('People also ask:', results.peopleAlsoAsk.length);
 }
 
 if (results.relatedSearches) {
@@ -235,31 +387,11 @@ const app = new TokenRingApp({
     }
   }
 });
+
+// Access the provider through the websearch service
+const websearchService = app.requireService(WebSearchService);
+const results = await websearchService.search('your query', 'serper');
 ```
-
-## API Reference
-
-### WebSearchResult
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `organic` | `OrganicResult[]` | Array of search results with title, link, snippet, and position |
-| `knowledgeGraph` | `KnowledgeGraph \| undefined` | Entity information with title, type, description, and attributes |
-| `peopleAlsoAsk` | `PeopleAlsoAsk[] \| undefined` | Related questions with answers and links |
-| `relatedSearches` | `RelatedSearch[] \| undefined` | Related search queries |
-
-### NewsSearchResult
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `news` | `NewsItem[]` | Array of news articles with title, link, snippet, date, source, and position |
-
-### WebPageResult
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `markdown` | `string` | Clean markdown-formatted content of the page |
-| `metadata` | `Record<string, any>` | Page metadata including title, description, OpenGraph properties |
 
 ## Error Handling
 
@@ -269,15 +401,36 @@ The package provides comprehensive error handling with helpful hints:
 try {
   const results = await provider.searchWeb('query');
 } catch (error) {
-  if (error.status === 401) {
-    console.log('Invalid API key - check SERPER_API_KEY');
-  } else if (error.status === 429) {
-    console.log('Rate limit exceeded - reduce request frequency');
-  } else {
-    console.log('Search failed:', error.message);
+  if (error instanceof Error) {
+    if (error.status === 401) {
+      console.log('Invalid API key - check SERPER_API_KEY');
+    } else if (error.status === 429) {
+      console.log('Rate limit exceeded - reduce request frequency');
+    } else {
+      console.log('Search failed:', error.message);
+      if (error.hint) {
+        console.log('Hint:', error.hint);
+      }
+      if (error.details) {
+        console.log('Details:', error.details.slice(0, 500));
+      }
+    }
   }
 }
 ```
+
+### Error Object Structure
+
+Error responses include:
+- `status`: HTTP status code (400, 401, 429, etc.)
+- `message`: Human-readable error message
+- `hint`: Suggestion for resolving the error (optional)
+- `details`: Raw response snippet (optional)
+
+Common error responses:
+- **401**: Invalid API key - check SERPER_API_KEY
+- **429**: Rate limit exceeded - reduce request frequency
+- **400**: Invalid request parameters (missing required fields)
 
 ## Development
 
@@ -288,31 +441,51 @@ bun run test
 bun run test:coverage
 ```
 
-### Package Structure
+### Project Structure
 
 ```
 pkg/serper/
-├── SerperWebSearchProvider.ts    # Core implementation
-├── plugin.ts                     # Token Ring plugin integration
+├── SerperWebSearchProvider.ts    # Core provider implementation
+├── plugin.ts                     # Token Ring plugin registration
 ├── index.ts                      # Package exports
-├── package.json                  # Package configuration
-├── design/                       # Example files and documentation
-│   ├── google_search_request_example.js
-│   ├── google_news_request_example.js
-│   ├── fetch_page_request_example.js
-│   ├── google_search_result_example.json
-│   ├── google_news_response_example.json
-│   ├── fetch_page_response_example.json
-│   └── implementation.md
-└── vitest.config.ts              # Test configuration
+├── package.json                  # Package metadata
+├── LICENSE                       # MIT License
+└── design/                       # Design documentation and examples
+    ├── google_search_request_example.js
+    ├── google_news_request_example.js
+    ├── fetch_page_request_example.js
+    ├── google_search_result_example.json
+    ├── google_news_response_example.json
+    ├── fetch_page_response_example.json
+    └── implementation.md
 ```
 
-### Contribution Guidelines
+### Dependencies
 
-- Follow established coding patterns
-- Add unit tests for new functionality
-- Update documentation for new features
-- Ensure all changes work with TokenRing agent framework
+- `@tokenring-ai/app`: Application framework for plugin integration
+- `@tokenring-ai/agent`: Agent framework
+- `@tokenring-ai/websearch`: Web search provider base class
+- `@tokenring-ai/utility`: Utility functions (pick, doFetchWithRetry)
+- `zod`: Runtime type validation
+
+## API Documentation
+
+### SerperWebSearchProvider
+
+Extends: `WebSearchProvider` from `@tokenring-ai/websearch`
+
+**Core Methods:**
+
+- `searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult>`
+- `searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult>`
+- `fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>`
+
+**Private Methods:**
+
+- `googleSearch(query: string, opts?: SerperSearchOptions): Promise<SerperSearchResponse>`
+- `googleNews(query: string, opts?: SerperNewsOptions): Promise<SerperNewsResponse>`
+- `buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown>`
+- `parseJsonOrThrow<T>(res: Response, context: string): Promise<T>`
 
 ## License
 
