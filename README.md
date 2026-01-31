@@ -114,6 +114,7 @@ Performs a Google web search and returns organic results, knowledge graphs, and 
 **Returns:** `Promise<WebSearchResult>` containing organic results, knowledge graph, people also ask questions, and related searches
 
 **Example:**
+
 ```typescript
 const results = await provider.searchWeb('Token Ring AI framework');
 console.log(results.organic); // Array of organic search results
@@ -136,7 +137,10 @@ Performs a Google News search and returns recent news articles.
 
 **Returns:** `Promise<NewsSearchResult>` containing array of news articles
 
+**Note:** The news search includes a hardcoded date filter for the last hour (`tbs: "qdr:h"`). Future versions may make this parameter configurable.
+
 **Example:**
+
 ```typescript
 const news = await provider.searchNews('artificial intelligence breakthroughs', {
   countryCode: 'us',
@@ -165,9 +169,12 @@ Fetches and extracts content from a web page using Serper's scraping service.
 - `url` (required): URL of the webpage to fetch
 - `options` (optional): Fetch options including `timeout` (in milliseconds)
 
+**Endpoint:** `POST https://scrape.serper.dev`
+
 **Returns:** `Promise<WebPageResult>` containing markdown content and metadata
 
 **Example:**
+
 ```typescript
 const page = await provider.fetchPage('https://example.com', {
   timeout: 10000
@@ -252,6 +259,15 @@ Response structure for Google search
 }
 ```
 
+### SerperSitelink
+
+```typescript
+{
+  title: string;
+  link: string;
+}
+```
+
 ### SerperOrganicResult
 
 ```typescript
@@ -263,6 +279,25 @@ Response structure for Google search
   position: number;
   attributes?: Record<string, string>;
   sitelinks?: SerperSitelink[];
+}
+```
+
+### SerperPeopleAlsoAsk
+
+```typescript
+{
+  question: string;
+  snippet: string;
+  title: string;
+  link: string;
+}
+```
+
+### SerperRelatedSearch
+
+```typescript
+{
+  query: string;
 }
 ```
 
@@ -298,6 +333,18 @@ Response structure for page fetch
     "og:site_name"?: string;
     [key: string]: any;
   };
+  credits?: number;
+}
+```
+
+### SerperNewsResponse
+
+Response structure for news search
+
+```typescript
+{
+  searchParameters: SerperSearchParameters;
+  news: SerperNewsResult[];
   credits?: number;
 }
 ```
@@ -450,6 +497,7 @@ pkg/serper/
 ├── index.ts                      # Package exports
 ├── package.json                  # Package metadata
 ├── LICENSE                       # MIT License
+├── vitest.config.ts              # Test configuration
 └── design/                       # Design documentation and examples
     ├── google_search_request_example.js
     ├── google_news_request_example.js
