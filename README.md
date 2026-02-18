@@ -510,11 +510,23 @@ pkg/serper/
 
 ### Dependencies
 
+#### Production Dependencies
+
 - `@tokenring-ai/app`: Application framework for plugin integration
 - `@tokenring-ai/agent`: Agent framework
 - `@tokenring-ai/websearch`: Web search provider base class
 - `@tokenring-ai/utility`: Utility functions (pick, doFetchWithRetry)
 - `zod`: Runtime type validation
+
+#### Development Dependencies
+
+- `vitest`: Testing framework
+- `@vitest/coverage-v8`: Coverage tooling
+- `typescript`: TypeScript compiler
+
+### Version
+
+`0.2.0`
 
 ## API Documentation
 
@@ -534,6 +546,103 @@ Extends: `WebSearchProvider` from `@tokenring-ai/websearch`
 - `googleNews(query: string, opts?: SerperNewsOptions): Promise<SerperNewsResponse>`
 - `buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown>`
 - `parseJsonOrThrow<T>(res: Response, context: string): Promise<T>`
+
+**Configuration Options:**
+
+```typescript
+type SerperSearchOptions = {
+  gl?: string;
+  hl?: string;
+  location?: string;
+  num?: number;
+  page?: number;
+  autocorrect?: boolean;
+  type?: "search";
+  extraParams?: Record<string, string | number | boolean>;
+};
+
+type SerperNewsOptions = {
+  gl?: string;
+  hl?: string;
+  location?: string;
+  num?: number;
+  page?: number;
+  type?: "news";
+  extraParams?: Record<string, string | number | boolean>;
+};
+```
+
+## Integration
+
+### Plugin Registration
+
+This package integrates with Token Ring applications through the plugin system. When installed, it automatically registers the Serper provider with the websearch service.
+
+### Configuration
+
+Add the serper provider configuration to your application's websearch configuration:
+
+```typescript
+import TokenRingApp from '@tokenring-ai/app';
+
+const app = new TokenRingApp({
+  websearch: {
+    providers: {
+      serper: {
+        type: 'serper',
+        apiKey: process.env.SERPER_API_KEY!,
+        defaults: {
+          gl: 'us',
+          hl: 'en'
+        }
+      }
+    }
+  }
+});
+```
+
+## Best Practices
+
+1. **API Key Security**: Store your Serper API key in environment variables and never commit it to version control
+2. **Rate Limiting**: Implement appropriate delays between requests to avoid rate limiting
+3. **Caching**: Consider caching repeated search queries to reduce API usage
+4. **Error Handling**: Always handle potential errors from search operations
+5. **Configuration Defaults**: Set reasonable default values for search parameters to ensure consistent behavior
+6. **Timeout Management**: Configure appropriate timeouts for page fetching operations
+
+## Testing
+
+### Unit Testing
+
+This package uses vitest for unit testing. Run tests with:
+
+```bash
+bun run test
+```
+
+### Coverage
+
+Generate test coverage reports with:
+
+```bash
+bun run test:coverage
+```
+
+## Dependencies
+
+### Production Dependencies
+
+- `@tokenring-ai/app`: ^0.2.0
+- `@tokenring-ai/agent`: ^0.2.0
+- `@tokenring-ai/websearch`: ^0.2.0
+- `@tokenring-ai/utility`: ^0.2.0
+- `zod`: ^4.3.6
+
+### Development Dependencies
+
+- `vitest`: ^4.0.18
+- `@vitest/coverage-v8`: ^4.0.18
+- `typescript`: ^5.9.3
 
 ## License
 
