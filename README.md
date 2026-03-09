@@ -2,7 +2,7 @@
 
 ## Overview
 
-Serper.dev integration package for the Token Ring AI framework, providing Google Search and News capabilities through the Serper API proxy. This package extends the `@tokenring-ai/websearch` module to enable seamless integration with Token Ring agents and applications for real-time web searches, news articles, and web page content extraction.
+Serper.dev integration package for the Token Ring AI framework, providing Google Search and News capabilities through the Serper API. This package extends the `@tokenring-ai/websearch` module to enable seamless integration with Token Ring agents and applications for real-time web searches, news articles, and web page content extraction.
 
 ### Key Features
 
@@ -11,7 +11,7 @@ Serper.dev integration package for the Token Ring AI framework, providing Google
 - **Web Page Fetching**: Extract markdown content and metadata from web pages using Serper's scraping service
 - **Location-Based Search**: Support for geographic targeting through `gl` and `location` parameters
 - **Language Support**: Multi-language search capabilities through `hl` parameter
-- **Plugin Architecture**: Automatic registration with Token Ring applications
+- **Plugin Architecture**: Automatic registration with Token Ring applications via websearch service
 - **Retry Logic**: Built-in retry mechanism with exponential backoff via `doFetchWithRetry`
 - **Type Safety**: Full TypeScript support with Zod schema validation
 - **Comprehensive Error Handling**: Detailed error messages with hints for common issues
@@ -827,12 +827,9 @@ pkg/serper/
 ├── LICENSE                       # MIT License
 ├── vitest.config.ts              # Test configuration
 └── design/                       # Design documentation and examples
-    ├── google_search_request_example.js
-    ├── google_news_request_example.js
-    ├── fetch_page_request_example.js
-    ├── google_search_result_example.json
-    ├── google_news_response_example.json
     ├── fetch_page_response_example.json
+    ├── google_news_response_example.json
+    ├── google_search_result_example.json
     └── implementation.md
 ```
 
