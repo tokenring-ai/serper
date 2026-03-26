@@ -2,7 +2,7 @@ import {TokenRingPlugin} from "@tokenring-ai/app";
 import {WebSearchConfigSchema, WebSearchService} from "@tokenring-ai/websearch";
 import {z} from "zod";
 import packageJSON from './package.json' with {type: 'json'};
-import SerperWebSearchProvider, {SerperWebSearchProviderOptionsSchema} from "./SerperWebSearchProvider.js";
+import SerperWebSearchProvider, {SerperWebSearchProviderOptionsSchema} from "./SerperWebSearchProvider.ts";
 
 const packageConfigSchema = z.object({
   websearch: WebSearchConfigSchema.optional()

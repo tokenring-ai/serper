@@ -178,7 +178,7 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
       const controller = new AbortController();
       const timeoutId = options?.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
 
-      const response = await fetch("https://scrape.serper.dev", {
+      const response = await doFetchWithRetry("https://scrape.serper.dev", {
         method: "POST",
         headers: {
           "X-API-KEY": this.config.apiKey,
@@ -244,7 +244,7 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
   }
 
   private buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown> {
-    if (!query) throw Object.assign(new Error("query is required"), {status: 400});
+    if (!query) throw Object.assign(new Error("query parameter is required"), {status: 400});
     const base: Record<string, unknown> = {q: query};
     const d: Record<string, unknown> = {...(this.config.defaults ?? {})};
     const merged: Record<string, unknown> = {...base, ...d, ...(opts || {})};
@@ -263,7 +263,7 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
       throw Object.assign(new Error(`${context} failed (${res.status})`), {
         status: res.status,
         hint: res.status === 401 ? "Check SERPER_API_KEY" : res.status === 429 ? "Reduce request rate" : undefined,
-        details: text?.slice(0, 500),
+        details: text.slice(0, 500),
       });
     }
     return await res.json();

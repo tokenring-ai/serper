@@ -848,6 +848,15 @@ pkg/serper/
     └── implementation.md
 ```
 
+### Package Exports
+
+The package exports the following:
+
+- `SerperWebSearchProvider`: The main provider class for Serper API integration
+- `SerperDefaultsSchema`: Zod schema for default search parameters
+- `SerperWebSearchProviderOptionsSchema`: Zod schema for provider options
+- `plugin`: Token Ring plugin for automatic service registration
+
 ### Build and Development
 
 ```bash
@@ -883,9 +892,9 @@ bun run build
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `vitest` | ^4.1.0 | Testing framework |
-| `@vitest/coverage-v8` | ^4.1.0 | Coverage tooling |
-| `typescript` | ^5.9.3 | TypeScript compiler |
+| `vitest` | ^4.1.1 | Testing framework |
+| `@vitest/coverage-v8` | ^4.1.1 | Coverage tooling |
+| `typescript` | ^6.0.2 | TypeScript compiler |
 
 ## Related Components
 
