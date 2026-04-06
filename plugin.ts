@@ -1,26 +1,29 @@
 import {TokenRingPlugin} from "@tokenring-ai/app";
-import {WebSearchConfigSchema, WebSearchService} from "@tokenring-ai/websearch";
+import {WebSearchService} from "@tokenring-ai/websearch";
 import {z} from "zod";
 import packageJSON from './package.json' with {type: 'json'};
-import SerperWebSearchProvider, {SerperWebSearchProviderOptionsSchema} from "./SerperWebSearchProvider.ts";
+import {SerperWebSearchProviderOptionsSchema} from "./schema.ts";
+import SerperWebSearchProvider from "./SerperWebSearchProvider.ts";
 
 const packageConfigSchema = z.object({
-  websearch: WebSearchConfigSchema.optional()
+  serper: SerperWebSearchProviderOptionsSchema.optional()
 });
 
 export default {
   name: packageJSON.name,
+  displayName: "Serper Search",
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
-    if (config.websearch) {
-      app.waitForService(WebSearchService, cdnService => {
-        for (const name in config.websearch!.providers) {
-          const provider = config.websearch!.providers[name];
-          if (provider.type === "serper") {
-            cdnService.registerProvider(name, new SerperWebSearchProvider(SerperWebSearchProviderOptionsSchema.parse(provider)));
-          }
-        }
+    if (process.env.SERPER_API_KEY) {
+      config.serper ??= {
+        apiKey: process.env.SERPER_API_KEY
+      };
+    }
+
+    if (config.serper) {
+      app.waitForService(WebSearchService, webSearchService => {
+        webSearchService.registerProvider("serper", new SerperWebSearchProvider(config.serper!));
       });
     }
   },

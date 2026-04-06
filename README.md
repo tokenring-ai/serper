@@ -12,9 +12,10 @@ Serper.dev integration package for the Token Ring AI framework, providing Google
 - **Location-Based Search**: Support for geographic targeting through `gl` and `location` parameters
 - **Language Support**: Multi-language search capabilities through `hl` parameter
 - **Plugin Architecture**: Automatic registration with Token Ring applications via websearch service
-- **Retry Logic**: Built-in retry mechanism with exponential backoff for search operations via `doFetchWithRetry`
+- **Retry Logic**: Built-in retry mechanism with exponential backoff for all search and fetch operations via `doFetchWithRetry`
 - **Type Safety**: Full TypeScript support with Zod schema validation
 - **Comprehensive Error Handling**: Detailed error messages with hints for common issues
+- **Configurable Defaults**: Support for default search parameters (country, language, results count, pagination)
 
 ### Integration Points
 
@@ -119,7 +120,7 @@ Performs a Google News search and returns recent news articles.
 **Returns:** `Promise<NewsSearchResult>` containing:
 - `news`: Array of news articles with title, link, snippet, date, source, and position
 
-**Note:** The news search includes a hardcoded date filter for the last hour (`tbs: "qdr:h"`). This is currently not configurable.
+**Note:** The news search includes a hardcoded date filter for the last hour (`tbs: "qdr:h"`). This is a known limitation - see [Best Practices](#best-practices) for workarounds.
 
 **Note:** This method uses `doFetchWithRetry` for automatic retry with exponential backoff.
 
@@ -160,7 +161,7 @@ Fetches and extracts content from a web page using Serper's scraping service.
 - `markdown`: Extracted markdown content
 - `metadata`: Page metadata including title, description, OpenGraph properties
 
-**Note:** This method uses direct `fetch` without retry logic. It includes timeout support via AbortController.
+**Note:** This method uses `doFetchWithRetry` for automatic retry with exponential backoff. It includes timeout support via AbortController.
 
 **Example:**
 
@@ -572,10 +573,10 @@ const results = await websearchService.search('your query', 'serper');
 3. **Caching**: Consider caching repeated search queries to reduce API usage
 4. **Error Handling**: Always handle potential errors from search operations
 5. **Configuration Defaults**: Set reasonable default values for search parameters to ensure consistent behavior
-6. **Timeout Management**: Configure appropriate timeouts for page fetching operations (note: `fetchPage` does not have retry logic)
+6. **Timeout Management**: Configure appropriate timeouts for page fetching operations. Note that `fetchPage` does have retry logic via `doFetchWithRetry`, but timeouts will abort the entire operation
 7. **Query Validation**: Validate search queries before sending to the API
 8. **Result Processing**: Handle cases where results may be empty or incomplete
-9. **News Search Limitation**: Be aware that news search is hardcoded to return results from the last hour only
+9. **News Search Limitation**: Be aware that news search is hardcoded to return results from the last hour only. For older news, consider using regular web search with date-specific queries
 
 ## Testing
 

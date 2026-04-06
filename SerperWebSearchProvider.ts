@@ -8,6 +8,7 @@ import WebSearchProvider, {
   WebSearchResult,
 } from "@tokenring-ai/websearch/WebSearchProvider";
 import {z} from "zod";
+import type {SerperWebSearchProviderOptions} from "./schema.ts";
 
 export const SerperDefaultsSchema = z.object({
   gl: z.string().optional(),
@@ -16,14 +17,6 @@ export const SerperDefaultsSchema = z.object({
   num: z.number().optional(),
   page: z.number().optional(),
 });
-
-export const SerperWebSearchProviderOptionsSchema = z.object({
-  apiKey: z.string(),
-  defaults: SerperDefaultsSchema.optional(),
-});
-
-
-export type SerperWebSearchProviderOptions = z.infer<typeof SerperWebSearchProviderOptionsSchema>;
 
 
 export type SerperSearchRequest = {

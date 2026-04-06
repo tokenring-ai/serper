@@ -1,7 +1,7 @@
 {
   "name": "@tokenring-ai/serper",
   "version": "0.2.0",
-  "description": "Serper.dev integration for Token Ring (Google Search and News)",
+  "description": "Google Search and News integration via the Serper.dev API.",
   "dependencies": {
     "@tokenring-ai/app": "0.2.0",
     "zod": "^4.3.6",
