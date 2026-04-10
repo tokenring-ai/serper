@@ -5,4 +5,6 @@ export const SerperWebSearchProviderOptionsSchema = z.object({
   apiKey: z.string(),
   defaults: SerperDefaultsSchema.optional(),
 });
-export type SerperWebSearchProviderOptions = z.infer<typeof SerperWebSearchProviderOptionsSchema>;
+export type SerperWebSearchProviderOptions = z.infer<
+  typeof SerperWebSearchProviderOptionsSchema
+>;

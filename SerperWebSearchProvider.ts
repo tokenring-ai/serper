@@ -1,10 +1,11 @@
 import {doFetchWithRetry} from "@tokenring-ai/utility/http/doFetchWithRetry";
 import pick from "@tokenring-ai/utility/object/pick";
-import WebSearchProvider, {
+import type {
   NewsSearchResult,
-  type WebPageOptions,
-  type WebPageResult,
-  type WebSearchProviderOptions,
+  WebPageOptions,
+  WebPageResult,
+  WebSearchProvider,
+  WebSearchProviderOptions,
   WebSearchResult,
 } from "@tokenring-ai/websearch/WebSearchProvider";
 import {z} from "zod";
@@ -17,7 +18,6 @@ export const SerperDefaultsSchema = z.object({
   num: z.number().optional(),
   page: z.number().optional(),
 });
-
 
 export type SerperSearchRequest = {
   q: string;
@@ -135,13 +135,14 @@ export type SerperNewsOptions = z.infer<typeof SerperDefaultsSchema> & {
   extraParams?: Record<string, string | number | boolean>;
 };
 
-export default class SerperWebSearchProvider extends WebSearchProvider {
+export default class SerperWebSearchProvider implements WebSearchProvider {
   constructor(private config: SerperWebSearchProviderOptions) {
-    super();
-    if (!config?.apiKey) throw new Error("SerperWebSearchProvider requires apiKey");
   }
 
-  async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
+  async searchWeb(
+    query: string,
+    options?: WebSearchProviderOptions,
+  ): Promise<WebSearchResult> {
     return pick(
       await this.googleSearch(query, {
         gl: options?.countryCode,
@@ -150,11 +151,14 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
         num: options?.num,
         page: options?.page,
       }),
-      ["knowledgeGraph","organic", "peopleAlsoAsk", "relatedSearches"]
+      ["knowledgeGraph", "organic", "peopleAlsoAsk", "relatedSearches"],
     );
   }
 
-  async searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult> {
+  async searchNews(
+    query: string,
+    options?: WebSearchProviderOptions,
+  ): Promise<NewsSearchResult> {
     return pick(
       await this.googleNews(query, {
         gl: options?.countryCode,
@@ -163,13 +167,19 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
         num: options?.num,
         page: options?.page,
       }),
-      ["news"]
+      ["news"],
     );
   }
-  async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult> {
+
+  async fetchPage(
+    url: string,
+    options?: WebPageOptions,
+  ): Promise<WebPageResult> {
     try {
       const controller = new AbortController();
-      const timeoutId = options?.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
+      const timeoutId = options?.timeout
+        ? setTimeout(() => controller.abort(), options.timeout)
+        : null;
 
       const response = await doFetchWithRetry("https://scrape.serper.dev", {
         method: "POST",
@@ -179,33 +189,41 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
         },
         body: JSON.stringify({
           url,
-          includeMarkdown: true
+          includeMarkdown: true,
         }),
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       if (timeoutId) clearTimeout(timeoutId);
 
       if (!response.ok) {
         const text = await response.text().catch(() => "");
-        throw new Error(`Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`);
+        throw new Error(
+          `Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`,
+        );
       }
 
-      const result = await response.json() as SerperPageResponse;
+      const result = (await response.json()) as SerperPageResponse;
 
       return pick(result, ["markdown", "metadata"]);
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         throw new Error(`Failed to fetch page: Request timeout`);
       }
-      throw new Error(`Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
-  private async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<SerperSearchResponse> {
+  private async googleSearch(
+    query: string,
+    opts: SerperSearchOptions = {},
+  ): Promise<SerperSearchResponse> {
     const body = this.buildPayload(query, {
       ...opts,
-      type: "search", ...(opts.extraParams || {})
+      type: "search",
+      ...(opts.extraParams || {}),
     }) as SerperSearchRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/search", {
       method: "POST",
@@ -218,12 +236,15 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
     return await this.parseJsonOrThrow(res, "Serper search");
   }
 
-  private async googleNews(query: string, opts: SerperNewsOptions = {}): Promise<SerperNewsResponse> {
+  private async googleNews(
+    query: string,
+    opts: SerperNewsOptions = {},
+  ): Promise<SerperNewsResponse> {
     const body = this.buildPayload(query, {
       ...opts,
-      tbs: "qdr:h",  // TODO: Make the date range selectable
+      tbs: "qdr:h", // TODO: Make the date range selectable
       type: "news",
-      ...(opts.extraParams || {})
+      ...(opts.extraParams || {}),
     }) as SerperNewsRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/news", {
       method: "POST",
@@ -236,8 +257,14 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
     return await this.parseJsonOrThrow(res, "Serper news");
   }
 
-  private buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown> {
-    if (!query) throw Object.assign(new Error("query parameter is required"), {status: 400});
+  private buildPayload(
+    query: string,
+    opts?: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!query)
+      throw Object.assign(new Error("query parameter is required"), {
+        status: 400,
+      });
     const base: Record<string, unknown> = {q: query};
     const d: Record<string, unknown> = {...(this.config.defaults ?? {})};
     const merged: Record<string, unknown> = {...base, ...d, ...(opts || {})};
@@ -245,17 +272,26 @@ export default class SerperWebSearchProvider extends WebSearchProvider {
     // Remove undefined/null values
     for (const k of Object.keys(merged)) {
       const v = merged[k as keyof typeof merged];
-      if (v === undefined || v === null) delete merged[k as keyof typeof merged];
+      if (v === undefined || v === null)
+        delete merged[k as keyof typeof merged];
     }
     return merged;
   }
 
-  private async parseJsonOrThrow<T = any>(res: Response, context: string): Promise<T> {
+  private async parseJsonOrThrow<T = any>(
+    res: Response,
+    context: string,
+  ): Promise<T> {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw Object.assign(new Error(`${context} failed (${res.status})`), {
         status: res.status,
-        hint: res.status === 401 ? "Check SERPER_API_KEY" : res.status === 429 ? "Reduce request rate" : undefined,
+        hint:
+          res.status === 401
+            ? "Check SERPER_API_KEY"
+            : res.status === 429
+              ? "Reduce request rate"
+              : undefined,
         details: text.slice(0, 500),
       });
     }
