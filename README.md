@@ -47,6 +47,7 @@ constructor(config: SerperWebSearchProviderOptions)
 ```
 
 **Parameters:**
+
 - `apiKey` (required): Your Serper.dev API key
 - `defaults` (optional): Default search parameters
 
@@ -63,6 +64,7 @@ async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebS
 Performs a Google web search and returns organic results, knowledge graphs, and related searches.
 
 **Parameters:**
+
 - `query` (required): Search query string
 - `options` (optional): Search options
   - `countryCode`: Geographic region code (e.g., 'us', 'uk')
@@ -72,6 +74,7 @@ Performs a Google web search and returns organic results, knowledge graphs, and 
   - `page`: Page number for pagination
 
 **Returns:** `Promise<WebSearchResult>` containing:
+
 - `organic`: Array of organic search results
 - `knowledgeGraph`: Knowledge graph information if available
 - `peopleAlsoAsk`: Array of related questions if available
@@ -109,6 +112,7 @@ async searchNews(query: string, options?: WebSearchProviderOptions): Promise<New
 Performs a Google News search and returns recent news articles.
 
 **Parameters:**
+
 - `query` (required): News search query string
 - `options` (optional): Search options
   - `countryCode`: Geographic region code
@@ -118,6 +122,7 @@ Performs a Google News search and returns recent news articles.
   - `page`: Page number for pagination
 
 **Returns:** `Promise<NewsSearchResult>` containing:
+
 - `news`: Array of news articles with title, link, snippet, date, source, and position
 
 **Note:** The news search includes a hardcoded date filter for the last hour (`tbs: "qdr:h"`). This is a known limitation - see [Best Practices](#best-practices) for workarounds.
@@ -151,6 +156,7 @@ async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult>
 Fetches and extracts content from a web page using Serper's scraping service.
 
 **Parameters:**
+
 - `url` (required): URL of the webpage to fetch
 - `options` (optional): Fetch options
   - `timeout`: Request timeout in milliseconds
@@ -158,6 +164,7 @@ Fetches and extracts content from a web page using Serper's scraping service.
 **Endpoint:** `POST https://scrape.serper.dev`
 
 **Returns:** `Promise<WebPageResult>` containing:
+
 - `markdown`: Extracted markdown content
 - `metadata`: Page metadata including title, description, OpenGraph properties
 
@@ -187,6 +194,7 @@ Internal method for performing Google searches via the Serper API.
 **Endpoint:** `POST https://google.serper.dev/search`
 
 **Parameters:**
+
 - `query`: Search query string
 - `opts`: Search options including `gl`, `hl`, `location`, `num`, `page`, `autocorrect`, `type`, and `extraParams`
 
@@ -201,6 +209,7 @@ Internal method for performing Google News searches via the Serper API.
 **Endpoint:** `POST https://google.serper.dev/news`
 
 **Parameters:**
+
 - `query`: News search query string
 - `opts`: Search options including `gl`, `hl`, `location`, `num`, `page`, `type`, and `extraParams`
 
@@ -215,6 +224,7 @@ private buildPayload(query: string, opts?: Record<string, unknown>): Record<stri
 Builds the request payload by merging query, defaults, and options.
 
 **Parameters:**
+
 - `query`: Search query string (required)
 - `opts`: Additional search options
 
@@ -231,6 +241,7 @@ private async parseJsonOrThrow<T>(res: Response, context: string): Promise<T>
 Parses JSON response or throws an error with detailed information.
 
 **Parameters:**
+
 - `res`: Response object
 - `context`: Context string for error messages
 
@@ -820,12 +831,14 @@ try {
 ### Error Object Structure
 
 Error responses include:
+
 - `status`: HTTP status code (400, 401, 429, etc.)
 - `message`: Human-readable error message
 - `hint`: Suggestion for resolving the error (optional)
 - `details`: Raw response snippet (optional)
 
 Common error responses:
+
 - **401**: Invalid API key - check SERPER_API_KEY
 - **429**: Rate limit exceeded - reduce request frequency
 - **400**: Invalid request parameters (missing required fields)
