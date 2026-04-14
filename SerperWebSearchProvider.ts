@@ -206,7 +206,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
       const result = (await response.json()) as SerperPageResponse;
 
       return pick(result, ["markdown", "metadata"]);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error(`Failed to fetch page: Request timeout`);
       }
