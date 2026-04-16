@@ -223,7 +223,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
     const body = this.buildPayload(query, {
       ...opts,
       type: "search",
-      ...(opts.extraParams || {}),
+      ...opts.extraParams,
     }) as SerperSearchRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/search", {
       method: "POST",
@@ -244,7 +244,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
       ...opts,
       tbs: "qdr:h", // TODO: Make the date range selectable
       type: "news",
-      ...(opts.extraParams || {}),
+      ...opts.extraParams,
     }) as SerperNewsRequest;
     const res = await doFetchWithRetry("https://google.serper.dev/news", {
       method: "POST",
@@ -266,8 +266,8 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
         status: 400,
       });
     const base: Record<string, unknown> = {q: query};
-    const d: Record<string, unknown> = {...(this.config.defaults ?? {})};
-    const merged: Record<string, unknown> = {...base, ...d, ...(opts || {})};
+    const d: Record<string, unknown> = {...this.config.defaults};
+    const merged: Record<string, unknown> = {...base, ...d, ...opts};
 
     // Remove undefined/null values
     for (const k of Object.keys(merged)) {
