@@ -1,5 +1,6 @@
-import {doFetchWithRetry} from "@tokenring-ai/utility/http/doFetchWithRetry";
+import { doFetchWithRetry } from "@tokenring-ai/utility/http/doFetchWithRetry";
 import pick from "@tokenring-ai/utility/object/pick";
+import { stripUndefinedKeys } from "@tokenring-ai/utility/object/stripObject";
 import type {
   NewsSearchResult,
   WebPageOptions,
@@ -8,55 +9,55 @@ import type {
   WebSearchProviderOptions,
   WebSearchResult,
 } from "@tokenring-ai/websearch/WebSearchProvider";
-import {z} from "zod";
-import type {SerperWebSearchProviderOptions} from "./schema.ts";
+import { z } from "zod";
+import type { SerperWebSearchProviderOptions } from "./schema.ts";
 
 export const SerperDefaultsSchema = z.object({
-  gl: z.string().optional(),
-  hl: z.string().optional(),
-  location: z.string().optional(),
-  num: z.number().optional(),
-  page: z.number().optional(),
+  gl: z.string().exactOptional(),
+  hl: z.string().exactOptional(),
+  location: z.string().exactOptional(),
+  num: z.number().exactOptional(),
+  page: z.number().exactOptional(),
 });
 
 export type SerperSearchRequest = {
   q: string;
-  gl?: string;
-  hl?: string;
-  location?: string;
-  num?: number;
-  page?: number;
-  autocorrect?: boolean;
+  gl?: string | undefined;
+  hl?: string | undefined;
+  location?: string | undefined;
+  num?: number | undefined;
+  page?: number | undefined;
+  autocorrect?: boolean | undefined;
   type?: "search";
 };
 
 export type SerperNewsRequest = {
   q: string;
-  gl?: string;
-  location?: string;
-  num?: number;
-  page?: number;
+  gl?: string | undefined;
+  location?: string | undefined;
+  num?: number | undefined;
+  page?: number | undefined;
   type?: "news";
 };
 
 export type SerperSearchParameters = {
   q: string;
-  gl?: string;
-  hl?: string;
-  autocorrect?: boolean;
-  page?: number;
-  type?: string;
+  gl?: string | undefined;
+  hl?: string | undefined;
+  autocorrect?: boolean | undefined;
+  page?: number | undefined;
+  type?: string | undefined;
 };
 
 export type SerperKnowledgeGraph = {
   title: string;
   type: string;
-  website?: string;
-  imageUrl?: string;
-  description?: string;
+  website?: string | undefined;
+  imageUrl?: string | undefined;
+  description?: string | undefined;
   descriptionSource?: string;
   descriptionLink?: string;
-  attributes?: Record<string, string>;
+  attributes?: Record<string, string> | undefined;
 };
 
 export type SerperSitelink = {
@@ -70,7 +71,7 @@ export type SerperOrganicResult = {
   snippet: string;
   date?: string;
   position: number;
-  attributes?: Record<string, string>;
+  attributes?: Record<string, string> | undefined;
   sitelinks?: SerperSitelink[];
 };
 
@@ -127,59 +128,53 @@ export type SerperPageResponse = {
 export type SerperSearchOptions = z.infer<typeof SerperDefaultsSchema> & {
   autocorrect?: boolean;
   type?: "search";
-  extraParams?: Record<string, string | number | boolean>;
+  extraParams?: Record<string, string | number | boolean> | undefined;
 };
 
 export type SerperNewsOptions = z.infer<typeof SerperDefaultsSchema> & {
   type?: "news";
-  extraParams?: Record<string, string | number | boolean>;
+  extraParams?: Record<string, string | number | boolean> | undefined;
 };
 
 export default class SerperWebSearchProvider implements WebSearchProvider {
-  constructor(private config: SerperWebSearchProviderOptions) {
-  }
+  constructor(private config: SerperWebSearchProviderOptions) {}
 
-  async searchWeb(
-    query: string,
-    options?: WebSearchProviderOptions,
-  ): Promise<WebSearchResult> {
+  async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
     return pick(
-      await this.googleSearch(query, {
-        gl: options?.countryCode,
-        hl: options?.language,
-        location: options?.location,
-        num: options?.num,
-        page: options?.page,
-      }),
+      await this.googleSearch(
+        query,
+        stripUndefinedKeys({
+          gl: options?.countryCode,
+          hl: options?.language,
+          location: options?.location,
+          num: options?.num,
+          page: options?.page,
+        }),
+      ),
       ["knowledgeGraph", "organic", "peopleAlsoAsk", "relatedSearches"],
     );
   }
 
-  async searchNews(
-    query: string,
-    options?: WebSearchProviderOptions,
-  ): Promise<NewsSearchResult> {
+  async searchNews(query: string, options?: WebSearchProviderOptions): Promise<NewsSearchResult> {
     return pick(
-      await this.googleNews(query, {
-        gl: options?.countryCode,
-        hl: options?.language,
-        location: options?.location,
-        num: options?.num,
-        page: options?.page,
-      }),
+      await this.googleNews(
+        query,
+        stripUndefinedKeys({
+          gl: options?.countryCode,
+          hl: options?.language,
+          location: options?.location,
+          num: options?.num,
+          page: options?.page,
+        }),
+      ),
       ["news"],
     );
   }
 
-  async fetchPage(
-    url: string,
-    options?: WebPageOptions,
-  ): Promise<WebPageResult> {
+  async fetchPage(url: string, options?: WebPageOptions): Promise<WebPageResult> {
     try {
       const controller = new AbortController();
-      const timeoutId = options?.timeout
-        ? setTimeout(() => controller.abort(), options.timeout)
-        : null;
+      const timeoutId = options?.timeout ? setTimeout(() => controller.abort(), options.timeout) : null;
 
       const response = await doFetchWithRetry("https://scrape.serper.dev", {
         method: "POST",
@@ -198,9 +193,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
 
       if (!response.ok) {
         const text = await response.text().catch(() => "");
-        throw new Error(
-          `Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`,
-        );
+        throw new Error(`Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`);
       }
 
       const result = (await response.json()) as SerperPageResponse;
@@ -210,16 +203,11 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error(`Failed to fetch page: Request timeout`);
       }
-      throw new Error(
-        `Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  private async googleSearch(
-    query: string,
-    opts: SerperSearchOptions = {},
-  ): Promise<SerperSearchResponse> {
+  private async googleSearch(query: string, opts: SerperSearchOptions = {}): Promise<SerperSearchResponse> {
     const body = this.buildPayload(query, {
       ...opts,
       type: "search",
@@ -236,10 +224,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
     return await this.parseJsonOrThrow(res, "Serper search");
   }
 
-  private async googleNews(
-    query: string,
-    opts: SerperNewsOptions = {},
-  ): Promise<SerperNewsResponse> {
+  private async googleNews(query: string, opts: SerperNewsOptions = {}): Promise<SerperNewsResponse> {
     const body = this.buildPayload(query, {
       ...opts,
       tbs: "qdr:h", // TODO: Make the date range selectable
@@ -257,41 +242,29 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
     return await this.parseJsonOrThrow(res, "Serper news");
   }
 
-  private buildPayload(
-    query: string,
-    opts?: Record<string, unknown>,
-  ): Record<string, unknown> {
+  private buildPayload(query: string, opts?: Record<string, unknown>): Record<string, unknown> {
     if (!query)
       throw Object.assign(new Error("query parameter is required"), {
         status: 400,
       });
-    const base: Record<string, unknown> = {q: query};
-    const d: Record<string, unknown> = {...this.config.defaults};
-    const merged: Record<string, unknown> = {...base, ...d, ...opts};
+    const base: Record<string, unknown> = { q: query };
+    const d: Record<string, unknown> = { ...this.config.defaults };
+    const merged: Record<string, unknown> = { ...base, ...d, ...opts };
 
     // Remove undefined/null values
     for (const k of Object.keys(merged)) {
       const v = merged[k as keyof typeof merged];
-      if (v === undefined || v === null)
-        delete merged[k as keyof typeof merged];
+      if (v === undefined || v === null) delete merged[k as keyof typeof merged];
     }
     return merged;
   }
 
-  private async parseJsonOrThrow<T = any>(
-    res: Response,
-    context: string,
-  ): Promise<T> {
+  private async parseJsonOrThrow<T = any>(res: Response, context: string): Promise<T> {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw Object.assign(new Error(`${context} failed (${res.status})`), {
         status: res.status,
-        hint:
-          res.status === 401
-            ? "Check SERPER_API_KEY"
-            : res.status === 429
-              ? "Reduce request rate"
-              : undefined,
+        hint: res.status === 401 ? "Check SERPER_API_KEY" : res.status === 429 ? "Reduce request rate" : undefined,
         details: text.slice(0, 500),
       });
     }

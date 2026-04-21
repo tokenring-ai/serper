@@ -1,10 +1,8 @@
-import {z} from "zod";
-import {SerperDefaultsSchema} from "./SerperWebSearchProvider.ts";
+import { z } from "zod";
+import { SerperDefaultsSchema } from "./SerperWebSearchProvider.ts";
 
 export const SerperWebSearchProviderOptionsSchema = z.object({
   apiKey: z.string(),
-  defaults: SerperDefaultsSchema.optional(),
+  defaults: SerperDefaultsSchema.exactOptional(),
 });
-export type SerperWebSearchProviderOptions = z.infer<
-  typeof SerperWebSearchProviderOptionsSchema
->;
+export type SerperWebSearchProviderOptions = z.infer<typeof SerperWebSearchProviderOptionsSchema>;

@@ -1,12 +1,12 @@
-import type {TokenRingPlugin} from "@tokenring-ai/app";
-import {WebSearchService} from "@tokenring-ai/websearch";
-import {z} from "zod";
-import packageJSON from "./package.json" with {type: "json"};
-import {SerperWebSearchProviderOptionsSchema} from "./schema.ts";
+import type { TokenRingPlugin } from "@tokenring-ai/app";
+import { WebSearchService } from "@tokenring-ai/websearch";
+import { z } from "zod";
+import packageJSON from "./package.json" with { type: "json" };
 import SerperWebSearchProvider from "./SerperWebSearchProvider.ts";
+import { SerperWebSearchProviderOptionsSchema } from "./schema.ts";
 
 const packageConfigSchema = z.object({
-  serper: SerperWebSearchProviderOptionsSchema.optional(),
+  serper: SerperWebSearchProviderOptionsSchema.exactOptional(),
 });
 
 export default {
@@ -21,13 +21,10 @@ export default {
       };
     }
 
-    const {serper} = config;
+    const { serper } = config;
     if (serper) {
-      app.waitForService(WebSearchService, (webSearchService) => {
-        webSearchService.registerProvider(
-          "serper",
-          new SerperWebSearchProvider(serper),
-        );
+      app.waitForService(WebSearchService, webSearchService => {
+        webSearchService.registerProvider("serper", new SerperWebSearchProvider(serper));
       });
     }
   },

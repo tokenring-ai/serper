@@ -1,1 +1,1 @@
-export {default as SerperWebSearchProvider} from "./SerperWebSearchProvider.ts";
+export { default as SerperWebSearchProvider } from "./SerperWebSearchProvider.ts";
