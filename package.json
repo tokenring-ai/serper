@@ -3,10 +3,10 @@
   "version": "0.2.0",
   "description": "Google Search and News integration via the Serper.dev API.",
   "dependencies": {
-    "@tokenring-ai/app": "0.2.0",
+    "@tokenring-ai/app": "workspace:*",
     "zod": "^4.3.6",
-    "@tokenring-ai/websearch": "0.2.0",
-    "@tokenring-ai/utility": "0.2.0"
+    "@tokenring-ai/websearch": "workspace:*",
+    "@tokenring-ai/utility": "workspace:*"
   },
   "devDependencies": {
     "vitest": "^4.1.1",
