@@ -200,10 +200,10 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
 
       return pick(result, ["markdown", "metadata"]);
     } catch (error: unknown) {
-      if (error instanceof Error && error.name === "AbortError") {
+      if (Error.isError(error) && error.name === "AbortError") {
         throw new Error(`Failed to fetch page: Request timeout`);
       }
-      throw new Error(`Failed to fetch page: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Failed to fetch page: ${Error.isError(error) ? error.message : String(error)}`);
     }
   }
 
