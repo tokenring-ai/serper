@@ -193,7 +193,7 @@ export default class SerperWebSearchProvider implements WebSearchProvider {
 
       if (!response.ok) {
         const text = await response.text().catch(() => "");
-        throw new Error(`Serper page fetch failed (${response.status}): ${text?.slice(0, 500)}`);
+        throw new Error(`Serper page fetch failed (${response.status}): ${text.slice(0, 500)}`);
       }
 
       const result = (await response.json()) as SerperPageResponse;
