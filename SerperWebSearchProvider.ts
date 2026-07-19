@@ -13,11 +13,11 @@ import { z } from "zod";
 import type { SerperWebSearchProviderOptions } from "./schema.ts";
 
 export const SerperDefaultsSchema = z.object({
-  gl: z.string().exactOptional(),
-  hl: z.string().exactOptional(),
-  location: z.string().exactOptional(),
-  num: z.number().exactOptional(),
-  page: z.number().exactOptional(),
+  gl: z.string().exactOptional().meta({ label: "Country (gl)", description: "Two-letter country code biasing results (e.g. us)" }),
+  hl: z.string().exactOptional().meta({ label: "Language (hl)", description: "Interface language code for results (e.g. en)" }),
+  location: z.string().exactOptional().meta({ description: "Location string biasing local results (e.g. 'Austin, Texas')" }),
+  num: z.number().min(1).max(100).exactOptional().meta({ description: "Results returned per search" }),
+  page: z.number().min(1).exactOptional().meta({ description: "Result page to fetch" }),
 });
 
 export type SerperSearchRequest = {

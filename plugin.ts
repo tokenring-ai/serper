@@ -28,5 +28,12 @@ export default {
       });
     }
   },
+  reconfigure(app, config) {
+    const { serper } = config;
+    if (serper) {
+      app.getService(WebSearchService)?.registerProvider("serper", new SerperWebSearchProvider(serper));
+    }
+    // Removing the config entirely leaves the existing provider registered until restart.
+  },
   config: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
