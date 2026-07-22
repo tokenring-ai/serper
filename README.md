@@ -605,7 +605,7 @@ const results = await websearchService.search('your query', 'serper');
 
 ### Unit Testing
 
-This package uses vitest for unit testing. Run tests with:
+This package uses bun test for unit testing. Run tests with:
 
 ```bash
 bun run test
@@ -622,8 +622,7 @@ bun run test:coverage
 ### Test Configuration
 
 ```typescript
-// vitest.config.ts
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'bun:test';
 
 export default defineConfig({
   test: {
@@ -867,7 +866,6 @@ pkg/serper/
 ├── index.ts                      # Package exports
 ├── package.json                  # Package metadata
 ├── LICENSE                       # MIT License
-├── vitest.config.ts              # Test configuration
 └── design/                       # Design documentation and examples
     ├── fetch_page_response_example.json
     ├── google_news_response_example.json
@@ -919,8 +917,7 @@ bun run build
 
 | Package               | Version | Description         |
 |-----------------------|---------|---------------------|
-| `vitest`              | ^4.1.1  | Testing framework   |
-| `@vitest/coverage-v8` | ^4.1.1  | Coverage tooling    |
+| `bun test`     | builtin  | Testing framework   |
 | `typescript`          | ^6.0.2  | TypeScript compiler |
 
 ## Related Components
