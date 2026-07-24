@@ -35,5 +35,5 @@ export default {
     }
     // Removing the config entirely leaves the existing provider registered until restart.
   },
-  config: packageConfigSchema,
+  configSchema: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
