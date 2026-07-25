@@ -10,7 +10,7 @@ import type {
   WebSearchResult,
 } from "@tokenring-ai/websearch/WebSearchProvider";
 import { z } from "zod";
-import type { SerperWebSearchProviderOptions } from "./schema.ts";
+import type { ResolvedSerperWebSearchProviderOptions } from "./schema.ts";
 
 export const SerperDefaultsSchema = z.object({
   gl: z.string().exactOptional().meta({ label: "Country (gl)", description: "Two-letter country code biasing results (e.g. us)" }),
@@ -137,7 +137,7 @@ export type SerperNewsOptions = z.infer<typeof SerperDefaultsSchema> & {
 };
 
 export default class SerperWebSearchProvider implements WebSearchProvider {
-  constructor(private config: SerperWebSearchProviderOptions) {}
+  constructor(private config: ResolvedSerperWebSearchProviderOptions) {}
 
   async searchWeb(query: string, options?: WebSearchProviderOptions): Promise<WebSearchResult> {
     return pick(

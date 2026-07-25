@@ -6,7 +6,8 @@
     "@tokenring-ai/app": "workspace:*",
     "zod": "^4.4.3",
     "@tokenring-ai/websearch": "workspace:*",
-    "@tokenring-ai/utility": "workspace:*"
+    "@tokenring-ai/utility": "workspace:*",
+    "@tokenring-ai/secrets": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^7.0.2"
