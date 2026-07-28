@@ -26,20 +26,18 @@ export default {
   displayName: "Serper Search",
   version: packageJSON.version,
   description: packageJSON.description,
-  install(app, config) {
-    const provider = buildProvider(app, config);
-    if (provider) {
-      app.waitForService(WebSearchService, webSearchService => {
-        webSearchService.registerProvider("serper", provider);
-      });
-    }
+  install(_app) {
+    // Provider is built and registered in reconfigure once secrets/config are applied.
   },
   reconfigure(app, config) {
     const provider = buildProvider(app, config);
-    if (provider) {
-      app.getService(WebSearchService)?.registerProvider("serper", provider);
-    }
-    // Removing the config entirely leaves the existing provider registered until restart.
+    app.waitForService(WebSearchService, webSearchService => {
+      if (provider) {
+        webSearchService.registerProvider("serper", provider);
+      } else {
+        webSearchService.unregisterProvider("serper");
+      }
+    });
   },
   configSchema: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
